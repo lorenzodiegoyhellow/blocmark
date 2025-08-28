@@ -1,0 +1,125 @@
+
+The app already has a language toggle, but only some strings translate. Implement complete internationalization so toggling EN ↔ IT translates all user-facing text and formatting across the product, including forms, validation, toasts, modals, emails, and third-party widgets.
+Goals
+	1	Standardize on i18next + react-i18next in the frontend; i18next on the backend (for emails, server messages).
+	2	Replace all user-visible literals with t()/<Trans>.
+	3	Provide structured translation resources for en and it (namespaces).
+	4	Persist language across sessions and URLs; update <html lang>, titles, meta.
+	5	Localize Zod errors, React Hook Form messages, date/number formatting, Stripe, TipTap UI text, Uppy, Leaflet attribution/controls.
+	6	Add a CI/lint blocker to prevent new hard-coded strings.
+Install/Configure
+	•	Frontend deps: i18next react-i18next i18next-browser-languagedetector
+	•	Backend deps: i18next i18next-fs-backend
+	•	Optional tooling: eslint-plugin-i18next (or custom rule), i18next-parser (for key extraction)
+File/Folder Structure
+Create:
+/frontend/src/i18n/index.ts
+/frontend/public/locales/en/{common,auth,listings,bookings,errors,marketing,forms,nav}.json
+/frontend/public/locales/it/{common,auth,listings,bookings,errors,marketing,forms,nav}.json
+
+/backend/i18n/index.ts
+/backend/locales/en/{emails,errors,auth}.json
+/backend/locales/it/{emails,errors,auth}.json
+
+/docs/CONTRIBUTING-i18n.md
+Frontend i18n init
+	•	In src/i18n/index.ts, initialize i18next with:
+	◦	supportedLngs: ["en","it"], fallbackLng: "en", ns per above
+	◦	resources loaded via XHR from /public/locales
+	◦	detection: query lang, then localStorage, then browser; persist to localStorage
+	◦	saveMissing: true (dev only)
+	•	Wrap the app in I18nextProvider and Suspense.
+	•	Update index.html / root to set <html lang={currentLang}> at runtime.
+Routing, Meta, and Wouter
+	•	Create a usePageMeta({ titleKey, descriptionKey }) hook that:
+	◦	document.title = t(titleKey)
+	◦	updates <meta name="description"> content
+	•	Call it per route. Ensure Wouter navigation does not reset language; keep ?lang=it|en in URL (URL wins over localStorage).
+Replacing literals
+	•	Repo-wide pass: replace all JSX text, placeholders, aria-labels, alt, tooltips, dialogs, toasts, buttons, table headers, empty states, filter labels, etc. with t("ns:key").
+	•	Use <Trans> for rich text/markup.
+	•	Interpolation: t("bookings.total", { amount })
+	•	Plurals: t("listings.results", { count })
+Forms & Validation
+	•	React Hook Form + Zod:
+	◦	Centralize Zod error maps: create src/i18n/zodErrorMap.ts mapping Zod issues to t("errors.zod.xxx"); set z.setErrorMap(customMap).
+	◦	All field labels/placeholders/help text use t() from forms.json and feature namespaces.
+	•	TanStack Query toasts/errors: wrap error normalizer to output translated messages (keys in errors.json).
+Dates, Numbers, Currency
+	•	Create formatters.ts utilities using Intl with i18n’s current language for:
+	◦	dates (Intl.DateTimeFormat) and numbers (Intl.NumberFormat)
+	◦	currency amounts (Stripe amounts) according to selected locale
+	•	Replace any toLocaleString() and manual formatting with these helpers.
+	•	For date-fns usage, set locale dynamically via date-fns/locale mapping (enUS/it).
+Third-party widgets/locales
+	•	Stripe: set <Elements options={{ locale: currentLang === "it" ? "it" : "en" }}>
+	•	Uppy: load locale packs and switch on language change.
+	•	Leaflet/React Leaflet: translate control labels/attribution if present; any custom control UI uses t().
+	•	TipTap: any UI strings in your custom menus/toolbars must use t(); content typed by users is not auto-translated (user data).
+	•	Framer Motion: no text, nothing to do.
+	•	shadcn/Radix: ensure any labels (e.g., Dialog titles, aria) are translated.
+Email (React Email + Postmark)
+	•	Backend i18next init in /backend/i18n/index.ts with i18next-fs-backend reading /backend/locales.
+	•	For each email template:
+	◦	Pass lang to the render function; wrap with an i18n provider or pass strings as props from t() calls.
+	◦	Keep brand names (e.g., “Blocmark”) untranslatable.
+	•	Choose language from: user profile → request param → fallback.
+Language Switcher
+	•	Keep existing UI; wire to i18n.changeLanguage(lang).
+	•	Persist to localStorage and update URL query ?lang=it|en via the Wouter navigation helper (no full reload).
+	•	On app boot, resolve language: URL → localStorage → detector → "en".
+Security/Assets
+	•	Ensure Helmet CSP (if strict) allows loading /public/locales/**.json.
+	•	No dynamic code execution from translations. Keep translations as plain strings.
+Quality Gate (CI)
+	•	Add ESLint rule to error on hard-coded UI strings in .tsx/.ts (except tests/config/logs). Use eslint-plugin-i18next or a custom rule (regex for quoted text in JSX with allowlist).
+	•	Add script "i18n:scan" using i18next-parser to extract/validate keys; CI fails on missing/unused keys.
+	•	Add a pre-commit hook to run i18n:scan on changed files.
+Namespaces & Keys (seed)
+Create initial keys by extracting current English copy. Mirror to Italian (machine translate where missing, then manually refine). Example structure:
+// public/locales/en/common.json
+{
+  "brand": "Blocmark",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "confirm": "Confirm",
+  "loading": "Loading...",
+  "language": {
+    "en": "English",
+    "it": "Italiano"
+  }
+}
+// public/locales/it/common.json
+{
+  "brand": "Blocmark",
+  "save": "Salva",
+  "cancel": "Annulla",
+  "delete": "Elimina",
+  "confirm": "Conferma",
+  "loading": "Caricamento...",
+  "language": {
+    "en": "English",
+    "it": "Italiano"
+  }
+}
+Repeat for auth, listings, bookings, errors, marketing, forms, nav.
+Acceptance Criteria
+	•	Toggling EN ↔ IT updates every visible string in all routes and flows: onboarding, search, listing detail, booking/checkout, profile, emails (via preview), validation, toasts, dialogs, tooltips, placeholders, alt/aria, and meta <title>/description.
+	•	Stripe elements and Uppy adopt the selected locale.
+	•	No console warnings for missing i18n keys.
+	•	yarn i18n:scan passes; CI blocks new hard-coded strings.
+	•	Dates, numbers, and currency follow the selected locale.
+	•	User-generated content remains unchanged (not auto-translated).
+Implementation Order
+	1	Add i18n init (frontend + backend) and seed locales.
+	2	Wire language resolver (URL → localStorage → detector) and switcher persistence.
+	3	Replace literals namespace-by-namespace; add formatters for dates/numbers.
+	4	Integrate Stripe, Uppy, Leaflet, TipTap UI strings.
+	5	Localize Zod/RHF errors and TanStack Query toasts.
+	6	Add meta translation hook.
+	7	Add ESLint rule + i18n:scan and make CI fail on violations.
+	8	Provide a short checklist showing EN ↔ IT parity by route.
+If something is unclear, infer sensible defaults and proceed. Start by auditing the repo for hard-coded UI strings and produce a diff plan of files to update, then implement end-to-end until the acceptance criteria are met.
+
+

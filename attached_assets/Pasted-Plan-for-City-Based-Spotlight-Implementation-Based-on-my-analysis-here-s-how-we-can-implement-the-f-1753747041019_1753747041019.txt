@@ -1,0 +1,41 @@
+Plan for City-Based Spotlight Implementation
+Based on my analysis, here's how we can implement the feature to show the best location for each city in the spotlight:
+
+Current State Analysis:
+The spotlight system exists with date-based scheduling
+Locations have address fields but no dedicated city field
+There's no user geolocation detection currently
+The admin can add/remove locations from spotlight with start/end dates
+Implementation Strategy:
+1. Database Schema Changes
+Add a city field to the spotlightLocations table to specify which city this spotlight is for
+Add a priority field to handle multiple locations per city (highest priority wins)
+Keep the existing date-based system for scheduling
+2. User Location Detection
+Implement IP-based geolocation to detect user's city
+Store this in session/local storage for performance
+Fallback to showing global spotlight if city not detected
+3. Admin Interface Enhancement
+Modify the spotlight manager to allow admins to specify the target city
+Add city selection dropdown when adding locations to spotlight
+Show which city each spotlight location targets
+4. Frontend Logic Update
+Modify the /api/spotlight/current endpoint to accept optional city parameter
+Update homepage to fetch spotlight based on user's detected city
+Maintain fallback to show general/global spotlights
+5. API Enhancement
+Create a new endpoint to extract city from location addresses
+Enhance spotlight queries to filter by city
+Add geolocation API for IP-based city detection
+Key Benefits:
+Personalized Experience: Users see relevant local content
+Admin Flexibility: Admins can feature the best location per city
+Scalable: Works for any number of cities
+Backward Compatible: Existing spotlight functionality remains intact
+Implementation Order:
+Add city field to spotlight schema
+Create city extraction utility for locations
+Add IP geolocation service
+Update admin interface for city selection
+Modify API endpoints to support city filtering
+Update frontend to use city-based spotlight

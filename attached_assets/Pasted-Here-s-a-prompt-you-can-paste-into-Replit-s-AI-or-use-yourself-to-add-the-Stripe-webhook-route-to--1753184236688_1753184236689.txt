@@ -1,0 +1,63 @@
+Here’s a prompt you can paste into Replit’s AI (or use yourself) to add the Stripe webhook route to your **booking/payment backend** using **Express.js**.
+
+> **Replit AI Prompt**:
+
+```
+// Add a Stripe webhook route to handle successful payments
+// Assumes Express.js and Stripe are already set up in the backend
+
+// 1. Import dependencies
+const express = require("express");
+const Stripe = require("stripe");
+const bodyParser = require("body-parser");
+
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+const app = express();
+
+// 2. Enable raw body parsing for Stripe webhook verification
+app.post("/api/webhook", express.raw({ type: "application/json" }), (req, res) => {
+  const sig = req.headers["stripe-signature"];
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error("⚠️ Webhook signature verification failed.", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // 3. Handle the event type
+  switch (event.type) {
+    case "checkout.session.completed":
+      const session = event.data.object;
+      console.log("✅ Payment successful. Booking ID:", session.client_reference_id);
+      // You can fulfill the booking here: update DB, send email, etc.
+      break;
+
+    // Add other event types here if needed
+
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
+
+  // 4. Respond to Stripe
+  res.json({ received: true });
+});
+
+// 5. Add this at the top of your app, *before* any other JSON middleware:
+app.use("/api/webhook", express.raw({ type: "application/json" }));
+
+// 6. Make sure other routes use JSON parser *after* the webhook route
+app.use(bodyParser.json());
+```
+
+> ⚠️ **Important Notes**:
+
+* This route must be defined **before** any `app.use(express.json())` middleware.
+* Stripe requires `express.raw()` to verify the webhook signature.
+* Replace any `require()` with `import` if you're using ES modules / TypeScript.
+
+Let me know if your backend is in TypeScript and you'd like the TypeScript version of this code.

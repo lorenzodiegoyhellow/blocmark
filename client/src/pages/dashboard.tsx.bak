@@ -1,0 +1,851 @@
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Location, Booking } from "@shared/schema";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
+import { useHostMode } from "@/hooks/use-host-mode";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { 
+  Loader2, 
+  Calendar, 
+  DollarSign, 
+  Pencil, 
+  BarChart2, 
+  Check, 
+  X, 
+  PieChart, 
+  Info, 
+  User,
+  Home,
+  AlertTriangle,
+  PlusCircle
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AppLayout } from "@/components/layout/app-layout";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { BookingEditForm } from "@/components/bookings/booking-edit-form";
+import { ViewDetailsButton } from "@/components/bookings/view-details-button";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { queryClient } from "@/lib/queryClient";
+
+export default function Dashboard() {
+  const { user, isLoading: authLoading } = useAuth();
+  const { isHostMode } = useHostMode();
+  const { toast } = useToast();
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
+  const [, navigate] = useLocation();
+  
+  // First, fetch locations owned by this user to determine if they can be in host mode
+  const { 
+    data: userOwnedLocations,
+    isLoading: ownedLocationsLoading
+  } = useQuery<Location[]>({
+    queryKey: ["/api/locations/owner"],
+    enabled: !!user?.id && user?.roles?.includes("owner"),
+  });
+  
+  // Only allow host mode if user actually has locations
+  const canBeHost = !!userOwnedLocations && userOwnedLocations.length > 0;
+  
+  // Use isHostMode directly to determine the active tab, but only if the user can be a host
+  const activeTab = (isHostMode && canBeHost) ? "host" : "client";
+  
+  // Debug log to help troubleshoot host/client mode issues
+  useEffect(() => {
+    console.log("Dashboard mode state:", { 
+      isHostMode, 
+      activeTab, 
+      hasOwnerRole: user?.roles?.includes("owner"),
+      hasLocations: canBeHost,
+      locationCount: userOwnedLocations?.length || 0,
+      userId: user?.id,
+      userRoles: user?.roles,
+    });
+  }, [isHostMode, activeTab, canBeHost, user?.id, user?.roles, userOwnedLocations?.length]);
+  
+  // Get user bookings (as a client)
+  const { 
+    data: clientBookings, 
+    isLoading: clientBookingsLoading,
+    error: clientBookingsError
+  } = useQuery<Booking[]>({
+    queryKey: ["/api/bookings/user"],
+    enabled: !!user?.id,
+    // Performance optimizations
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes to reduce API calls
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch when component mounts if data exists
+  });
+
+  // Get bookings for the user's locations (as a host)
+  const { 
+    data: hostBookings, 
+    isLoading: hostBookingsLoading,
+    error: hostBookingsError
+  } = useQuery<Booking[]>({
+    queryKey: ["/api/bookings/host"],
+    enabled: !!user?.id && user?.roles?.includes("owner") && activeTab === "host",
+    // Performance optimizations
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch when component mounts if data exists
+  });
+
+  // Fetch all locations owned by this user
+  const { 
+    data: userLocations, 
+    isLoading: locationsLoading,
+    error: locationsError
+  } = useQuery<Location[]>({
+    queryKey: ["/api/locations/owner"],
+    enabled: !!user?.id && user?.roles?.includes("owner") && activeTab === "host",
+    // Performance optimizations
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+  
+  // Only log in development mode for performance
+  if (process.env.NODE_ENV === 'development') {
+    useEffect(() => {
+      if (clientBookings) {
+        console.log("Client bookings loaded:", clientBookings.length);
+      }
+      if (hostBookings) {
+        console.log("Host bookings loaded:", hostBookings.length);
+      }
+    }, [clientBookings, hostBookings]);
+  }
+
+  // Add the update booking status mutation
+  const updateBookingStatusMutation = useMutation({
+    mutationFn: async ({ bookingId, status }: { bookingId: number, status: 'pending' | 'confirmed' | 'rejected' | 'cancelled' | 'payment_pending' }) => {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update booking status to ${status}`);
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate both queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings/host"] });
+      
+      toast({
+        title: "Success",
+        description: "Booking status updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update booking status",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Cancel booking mutation
+  const cancelBookingMutation = useMutation({
+    mutationFn: async (bookingId: number) => {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to cancel booking");
+      }
+    },
+    onSuccess: () => {
+      // Invalidate both queries
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings/user"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings/host"] });
+      
+      toast({
+        title: "Success",
+        description: "Booking cancelled successfully",
+      });
+      setBookingToCancel(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to cancel booking",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Check if the user is authenticated
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-border" />
+      </div>
+    );
+  }
+
+  // If not authenticated, show login prompt
+  if (!user) {
+    return (
+      <AppLayout>
+        <div className="container mx-auto px-4 py-16">
+          <Card className="max-w-lg mx-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+                Authentication Required
+              </CardTitle>
+              <CardDescription>
+                You need to log in to view your bookings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <p>Please log in to access your bookings and account information.</p>
+              <Button onClick={() => navigate('/auth')} className="w-full">
+                Log In or Sign Up
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Loading state for active tab
+  if (
+    (activeTab === "client" && clientBookingsLoading) || 
+    (activeTab === "host" && (hostBookingsLoading || locationsLoading))
+  ) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-border" />
+      </div>
+    );
+  }
+
+  // Check for errors and show error message
+  const hasErrors = (activeTab === "client" && clientBookingsError) ||
+    (activeTab === "host" && (hostBookingsError || locationsError));
+
+  if (hasErrors) {
+    return (
+      <AppLayout>
+        <div className="container mx-auto px-4 py-16">
+          <Card className="max-w-lg mx-auto">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                Error Loading Data
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>There was a problem loading your booking data. Please try again later.</p>
+              <Button 
+                onClick={() => {
+                  queryClient.invalidateQueries({ queryKey: ["/api/bookings/user"] });
+                  queryClient.invalidateQueries({ queryKey: ["/api/bookings/host"] });
+                  queryClient.invalidateQueries({ queryKey: ["/api/locations/owner"] });
+                }} 
+                className="mt-4"
+              >
+                Retry
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Handler functions
+  const handleCancelBooking = (booking: Booking) => {
+    setBookingToCancel(booking);
+  };
+
+  const confirmCancelBooking = () => {
+    if (bookingToCancel) {
+      cancelBookingMutation.mutate(bookingToCancel.id);
+    }
+  };
+
+  const handleApproveBooking = (bookingId: number) => {
+    updateBookingStatusMutation.mutate({ 
+      bookingId, 
+      status: 'confirmed' 
+    });
+  };
+
+  const handleRejectBooking = (bookingId: number) => {
+    updateBookingStatusMutation.mutate({ 
+      bookingId, 
+      status: 'rejected' 
+    });
+  };
+
+  // Organize bookings by status
+  // Active bookings are only those that are pending or confirmed
+  const activeClientBookings = clientBookings?.filter(booking => 
+    booking.status === "pending" || booking.status === "confirmed"
+  ) || [];
+  
+  // Cancelled bookings include both manually cancelled and rejected bookings
+  const cancelledClientBookings = clientBookings?.filter(booking => 
+    booking.status === "cancelled" || booking.status === "rejected"
+  ) || [];
+  
+  // For host bookings, organize them by location and status
+  const pendingHostBookings = hostBookings?.filter(booking => booking.status === "pending") || [];
+  const confirmedHostBookings = hostBookings?.filter(booking => booking.status === "confirmed") || [];
+  const rejectedHostBookings = hostBookings?.filter(booking => booking.status && String(booking.status) === "rejected") || [];
+
+  return (
+    <AppLayout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">My Bookings</h1>
+            <p className="text-muted-foreground">
+              Manage your bookings and view their status
+            </p>
+          </div>
+        </div>
+        
+        {isHostMode && canBeHost && (
+          <div className="mb-8">
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <BarChart2 className="h-6 w-6 mr-2 text-primary" /> 
+                  Host Analytics Dashboard
+                </CardTitle>
+                <CardDescription>
+                  Gain valuable insights about your listings, bookings, and revenue
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="flex items-center space-x-2 bg-white p-3 rounded-lg shadow-sm">
+                    <DollarSign className="h-8 w-8 text-emerald-500" />
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Revenue</p>
+                      <p className="text-xl font-bold">$8,342</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2 bg-white p-3 rounded-lg shadow-sm">
+                    <Calendar className="h-8 w-8 text-blue-500" />
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Bookings</p>
+                      <p className="text-xl font-bold">164</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2 bg-white p-3 rounded-lg shadow-sm">
+                    <PieChart className="h-8 w-8 text-purple-500" />
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Conversion</p>
+                      <p className="text-xl font-bold">18.3%</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <Link href="/analytics">
+                    <Button className="w-full">
+                      View Full Analytics Dashboard
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Mode toggle automatically based on isHostMode, no need for manual switching tabs */}
+        
+        {/* Show warning if user is trying to use host mode but has no properties */}
+        {isHostMode && !canBeHost && (
+          <div className="mb-8">
+            <Card className="bg-amber-50 border-amber-200">
+              <CardHeader className="flex flex-row items-center gap-3">
+                <AlertTriangle className="h-6 w-6 text-amber-500" />
+                <div>
+                  <CardTitle>Host Mode Unavailable</CardTitle>
+                  <CardDescription>You need to list a property before using host features</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">To use host mode, you need to create at least one listing first. Once you have a property listed, you'll be able to:</p>
+                <ul className="list-disc pl-5 mb-4 space-y-1">
+                  <li>Manage bookings for your properties</li>
+                  <li>Access the host analytics dashboard</li>
+                  <li>Manage your property listings</li>
+                </ul>
+                <Button 
+                  onClick={() => navigate('/add-listing')}
+                  className="w-full"
+                >
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Create Your First Listing
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        
+        {activeTab === "client" ? (
+          // CLIENT VIEW
+          <Tabs defaultValue="active">
+            <TabsList>
+              <TabsTrigger value="active">Active Bookings</TabsTrigger>
+              <TabsTrigger value="cancelled">Cancelled Bookings</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="active">
+              <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <h3 className="font-medium text-blue-800 mb-1 flex items-center">
+                  <Info className="h-4 w-4 mr-2" />
+                  Active Bookings
+                </h3>
+                <p className="text-sm text-blue-700">
+                  This tab shows your current and upcoming bookings that are either confirmed or waiting for approval.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {activeClientBookings.map((booking) => (
+                  <Card key={booking.id}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1">
+                          <CardTitle>Booking #{booking.id}</CardTitle>
+                          <Button 
+                            variant="link" 
+                            className="p-0 h-auto text-sm text-primary"
+                            onClick={() => navigate(`/bookings/${booking.id}`)}
+                          >
+                            View Details
+                          </Button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={
+                              booking.status === "confirmed"
+                                ? "default"
+                                : String(booking.status) === "rejected"
+                                ? "destructive"
+                                : "secondary"
+                            }
+                          >
+                            {booking.status}
+                          </Badge>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedBooking(booking)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleCancelBooking(booking)}
+                            disabled={String(booking.status) === "rejected"}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Dates</p>
+                          <p>
+                            {format(new Date(booking.startDate), "MMM d, yyyy")} -{" "}
+                            {format(new Date(booking.endDate), "MMM d, yyyy")}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Total Price</p>
+                          <p>${booking.totalPrice}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {activeClientBookings.length === 0 && (
+                  <Card>
+                    <CardContent className="p-8 text-center text-muted-foreground min-h-[60vh] flex items-center justify-center">
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">You don't have any active bookings</h3>
+                        <p className="text-sm">Your active bookings will appear here when you make a reservation.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="cancelled">
+              <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="font-medium text-gray-800 mb-1 flex items-center">
+                  <Info className="h-4 w-4 mr-2" />
+                  Cancelled/Rejected Bookings
+                </h3>
+                <p className="text-sm text-gray-700">
+                  This tab shows bookings that were either cancelled by you or rejected by the property host.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {cancelledClientBookings.map((booking) => (
+                  <Card key={booking.id}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1">
+                          <CardTitle>Booking #{booking.id}</CardTitle>
+                          <Button 
+                            variant="link" 
+                            className="p-0 h-auto text-sm text-primary"
+                            onClick={() => navigate(`/bookings/${booking.id}`)}
+                          >
+                            View Details
+                          </Button>
+                        </div>
+                        <Badge 
+                          variant={booking.status === "rejected" ? "outline" : "destructive"}
+                          className={booking.status === "rejected" ? "bg-gray-100 text-gray-700 border-gray-300" : ""}
+                        >
+                          {booking.status === "rejected" ? "Rejected by Host" : "Cancelled by You"}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Dates</p>
+                          <p>
+                            {format(new Date(booking.startDate), "MMM d, yyyy")} -{" "}
+                            {format(new Date(booking.endDate), "MMM d, yyyy")}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Total Price</p>
+                          <p>${booking.totalPrice}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {cancelledClientBookings.length === 0 && (
+                  <Card>
+                    <CardContent className="p-8 text-center text-muted-foreground min-h-[60vh] flex items-center justify-center">
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">No cancelled or rejected bookings</h3>
+                        <p className="text-sm">Both bookings you've cancelled and those rejected by hosts will appear here.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          // HOST VIEW - Show bookings for your locations
+          <Tabs defaultValue="confirmed">
+            <TabsList>
+              <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
+              <TabsTrigger value="pending">
+                Pending Requests
+                {pendingHostBookings.length > 0 && (
+                  <span className="ml-2 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                    {pendingHostBookings.length}
+                  </span>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="rejected">Rejected</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="pending">
+              <div className="space-y-4">
+                {pendingHostBookings.map((booking) => {
+                  // Find the location this booking is for
+                  const location = userLocations?.find(l => l.id === booking.locationId);
+                  
+                  return (
+                    <Card key={booking.id} className="border-amber-200">
+                      <CardHeader className="bg-amber-50 pb-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="flex items-center">
+                              <Info className="h-4 w-4 mr-2 text-amber-500" />
+                              <CardTitle className="text-lg">New Booking Request</CardTitle>
+                            </div>
+                            <CardDescription>
+                              {location?.title || `Location #${booking.locationId}`}
+                            </CardDescription>
+                          </div>
+                          <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
+                            Pending
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Dates</p>
+                            <p>
+                              {format(new Date(booking.startDate), "MMM d, yyyy")} -{" "}
+                              {format(new Date(booking.endDate), "MMM d, yyyy")}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Guests</p>
+                            <p>{booking.guestCount}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Total Price</p>
+                            <p>${booking.totalPrice}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-end gap-2 bg-amber-50 pt-2">
+                        <Link href={`/host-booking/${booking.id}`}>
+                          <Button
+                            variant="outline"
+                            className="bg-white hover:bg-gray-100"
+                          >
+                            View Details
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleRejectBooking(booking.id)}
+                          className="bg-white hover:bg-gray-100"
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Decline
+                        </Button>
+                        <Button
+                          onClick={() => handleApproveBooking(booking.id)}
+                        >
+                          <Check className="h-4 w-4 mr-2" />
+                          Approve
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  );
+                })}
+
+                {pendingHostBookings.length === 0 && (
+                  <Card>
+                    <CardContent className="p-8 text-center text-muted-foreground min-h-[30vh] flex items-center justify-center">
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">No pending booking requests</h3>
+                        <p className="text-sm">When someone requests to book one of your locations, it will appear here.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="confirmed">
+              <div className="space-y-4">
+                {confirmedHostBookings.map((booking) => {
+                  // Find the location this booking is for
+                  const location = userLocations?.find(l => l.id === booking.locationId);
+                  
+                  return (
+                    <Card key={booking.id} className="border-emerald-200">
+                      <CardHeader className="bg-emerald-50 pb-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle className="text-lg">Confirmed Booking</CardTitle>
+                            <CardDescription>
+                              {location?.title || `Location #${booking.locationId}`}
+                            </CardDescription>
+                          </div>
+                          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+                            Confirmed
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Dates</p>
+                            <p>
+                              {format(new Date(booking.startDate), "MMM d, yyyy")} -{" "}
+                              {format(new Date(booking.endDate), "MMM d, yyyy")}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Guests</p>
+                            <p>{booking.guestCount}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Total Price</p>
+                            <p>${booking.totalPrice}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-end gap-2 bg-emerald-50 pt-2">
+                        <Link href={`/host-booking/${booking.id}`}>
+                          <Button
+                            variant="outline"
+                            className="bg-white hover:bg-gray-100"
+                          >
+                            View Details
+                          </Button>
+                        </Link>
+                      </CardFooter>
+                    </Card>
+                  );
+                })}
+
+                {confirmedHostBookings.length === 0 && (
+                  <Card>
+                    <CardContent className="p-8 text-center text-muted-foreground min-h-[30vh] flex items-center justify-center">
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">No confirmed bookings</h3>
+                        <p className="text-sm">Bookings you've approved will appear here.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="rejected">
+              <div className="space-y-4">
+                {rejectedHostBookings.map((booking) => {
+                  // Find the location this booking is for
+                  const location = userLocations?.find(l => l.id === booking.locationId);
+                  
+                  return (
+                    <Card key={booking.id} className="border-gray-200">
+                      <CardHeader className="bg-gray-50 pb-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle className="text-lg">Declined Booking</CardTitle>
+                            <CardDescription>
+                              {location?.title || `Location #${booking.locationId}`}
+                            </CardDescription>
+                          </div>
+                          <Badge variant="outline" className="bg-gray-100">
+                            Declined
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Dates</p>
+                            <p>
+                              {format(new Date(booking.startDate), "MMM d, yyyy")} -{" "}
+                              {format(new Date(booking.endDate), "MMM d, yyyy")}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Guests</p>
+                            <p>{booking.guestCount}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Total Price</p>
+                            <p>${booking.totalPrice}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="flex justify-end gap-2 bg-gray-50 pt-2">
+                        <Link href={`/host-booking/${booking.id}`}>
+                          <Button
+                            variant="outline"
+                            className="bg-white hover:bg-gray-100"
+                          >
+                            View Details
+                          </Button>
+                        </Link>
+                      </CardFooter>
+                    </Card>
+                  );
+                })}
+
+                {rejectedHostBookings.length === 0 && (
+                  <Card>
+                    <CardContent className="p-8 text-center text-muted-foreground min-h-[30vh] flex items-center justify-center">
+                      <div>
+                        <h3 className="text-lg font-medium mb-2">No declined bookings</h3>
+                        <p className="text-sm">Bookings you've declined will appear here.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        )}
+      </div>
+
+      {/* Booking Edit Dialog */}
+      {selectedBooking && (
+        <BookingEditForm
+          booking={selectedBooking}
+          isOpen={!!selectedBooking}
+          onClose={() => setSelectedBooking(null)}
+        />
+      )}
+
+      {/* Cancel Confirmation Dialog */}
+      <Dialog open={!!bookingToCancel} onOpenChange={() => setBookingToCancel(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel Booking</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel this booking? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {bookingToCancel && (
+              <div className="border rounded-lg p-4 bg-muted/30">
+                <p className="font-medium">Booking Details:</p>
+                <p className="text-sm mt-2">
+                  Dates: {format(new Date(bookingToCancel.startDate), "MMM d, yyyy")} -{" "}
+                  {format(new Date(bookingToCancel.endDate), "MMM d, yyyy")}
+                </p>
+                <p className="text-sm mt-1">
+                  Total Price: ${bookingToCancel.totalPrice}
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBookingToCancel(null)}>
+              Keep Booking
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmCancelBooking}
+              disabled={cancelBookingMutation.isPending}
+            >
+              {cancelBookingMutation.isPending ? "Cancelling..." : "Confirm Cancellation"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </AppLayout>
+  );
+}

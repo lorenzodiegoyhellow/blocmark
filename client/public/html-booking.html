@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting to Booking Page | Blocmark</title>
+  <script>
+    // Function to get URL parameters
+    function getUrlParams() {
+      const params = {};
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      
+      for (const [key, value] of urlParams) {
+        params[key] = value;
+      }
+      
+      return params;
+    }
+    
+    // Function to extract location ID from URL
+    function getLocationId() {
+      const path = window.location.pathname;
+      const matches = path.match(/\/locations\/(\d+)\/booking/);
+      return matches ? matches[1] : null;
+    }
+    
+    // Redirect to React booking page
+    window.onload = function() {
+      const params = getUrlParams();
+      const locationId = getLocationId() || params.locationId;
+      
+      if (locationId) {
+        // Create URL for React booking page with any existing parameters
+        let redirectUrl = `/locations/${locationId}/booking-details`;
+        
+        // Add any additional query parameters from the original URL
+        const queryParams = new URLSearchParams(window.location.search);
+        if (queryParams.toString()) {
+          redirectUrl += `?${queryParams.toString()}`;
+        }
+        
+        // Redirect to the React booking page
+        window.location.href = redirectUrl;
+      } else {
+        // Fallback if no location ID found
+        window.location.href = '/';
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f8f9fa;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0066FF;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-right: 15px;
+    }
+    .container {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .message {
+      margin-top: 20px;
+      color: #333;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+    
+    /* Hide any back buttons in the header */
+    header .no-back-button button[aria-label="Go back"],
+    header .no-back-button a[aria-label="Go back"],
+    header .no-back-button button.back-button,
+    header .no-back-button a.back-button,
+    header .no-back-button button:has(svg[data-testid="ArrowLeftIcon"]),
+    header .no-back-button a:has(svg[data-testid="ArrowLeftIcon"]),
+    header .no-back-button [role="button"][aria-label="Back"],
+    header button.mobile-nav-back {
+      display: none !important;
+    }
+    .brand-blue-border {
+      border-color: #0066FF;
+    }
+    .dark-header {
+      background-color: #0e1420;
+      color: white;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .custom-checkbox {
+      width: 20px;
+      height: 20px;
+      appearance: none;
+      border: 2px solid #0066FF;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .custom-checkbox:checked {
+      background-color: #0066FF;
+    }
+    .custom-checkbox:checked:after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 6px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .addon-card {
+      transition: all 0.2s;
+    }
+    .addon-card:hover {
+      border-color: #0066FF;
+      transform: translateY(-2px);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .step {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      position: relative;
+      color: #6b7280;
+    }
+    .step.active {
+      background-color: #0066FF;
+      color: white;
+    }
+    .step.complete {
+      background-color: #10b981;
+      color: white;
+    }
+    .step-line {
+      flex-grow: 1;
+      height: 2px;
+      background-color: #f3f4f6;
+      margin: 0 8px;
+      position: relative;
+      top: 16px;
+    }
+    .step-line.active {
+      background-color: #0066FF;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="loading-row">
+      <div class="loader"></div>
+      <h1>Redirecting to Booking Page</h1>
+    </div>
+    <p class="message">Please wait while we redirect you to the new booking experience...</p>
+  </div>
+                    <span>🔔</span>
+                  </div>
+                </div>
+                <div>
+                  <p class="font-medium text-sm">Booking Confirmed</p>
+                  <p class="text-xs text-gray-500 mt-1">Your booking at "Studio Blue" has been confirmed for May 15, 2025.</p>
+                  <p class="text-xs text-gray-400 mt-2">1 hour ago</p>
+                </div>
+              </div>
+              <div class="p-3 hover:bg-gray-50 rounded-md m-2 flex items-start space-x-3">
+                <div class="flex-shrink-0 mt-1">
+                  <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+                    <span>💬</span>
+                  </div>
+                </div>
+                <div>
+                  <p class="font-medium text-sm">New Message</p>
+                  <p class="text-xs text-gray-500 mt-1">You have a new message from the owner of "Victorian House".</p>
+                  <p class="text-xs text-gray-400 mt-2">Yesterday</p>
+                </div>
+              </div>
+            </div>
+            <div class="text-center p-2 border-t">
+              <button class="w-full text-sm text-blue-600 hover:text-blue-800 py-1">
+                View all notifications
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- User menu button - opens sheet from the right -->
+        <button onclick="toggleMenu('userMenu')" class="flex items-center space-x-2 text-sm text-gray-700 font-medium cursor-pointer">
+          <div class="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+            MI
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+      <!-- Breadcrumb -->
+      <div class="mb-6">
+        <a href="#" onclick="goBack()" class="inline-flex items-center text-gray-600 hover:text-gray-900">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to location
+        </a>
+      </div>
+      
+      <!-- Step indicator -->
+      <div class="step-indicator mb-8">
+        <div class="step complete">
+          <span>1</span>
+        </div>
+        <div class="step-line active"></div>
+        <div class="step active">
+          <span>2</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <span>3</span>
+        </div>
+      </div>
+      
+      <!-- Main card -->
+      <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="border-b p-6">
+          <h1 class="text-2xl font-bold">Booking Summary</h1>
+          <p class="text-gray-500 text-sm mt-1">Review your booking details and add extras</p>
+        </div>
+        
+        <div class="p-6">
+          <div id="booking-content" class="space-y-6">
+            <!-- This will be populated with booking data -->
+            <div class="text-center py-12">
+              <div class="inline-block animate-spin h-8 w-8 border-4 border-gray-300 border-t-blue-600 rounded-full"></div>
+              <p class="mt-4 text-gray-500">Loading booking details...</p>
+            </div>
+          </div>
+          
+          <!-- Add-ons section -->
+          <div id="addons-section" class="mt-8 border-t pt-6" style="display: none;">
+            <h2 class="text-xl font-semibold mb-4">Available Add-ons</h2>
+            <p class="text-sm text-gray-500 mb-4">Enhance your booking with these optional extras</p>
+            
+            <div id="addons-loading" class="py-8 text-center">
+              <div class="inline-block animate-spin h-6 w-6 border-3 border-gray-300 border-t-blue-600 rounded-full"></div>
+              <p class="mt-3 text-sm text-gray-500">Loading available add-ons...</p>
+            </div>
+            
+            <div id="addons-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            
+            <div id="no-addons" class="text-center py-6 hidden">
+              <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <p class="text-gray-500 mt-4">No add-ons available for this location</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="border-t p-6 flex justify-between">
+          <button onclick="goBack()" class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+            Back
+          </button>
+          
+          <button id="confirm-button" onclick="confirmBooking()" class="px-6 py-2 brand-blue-bg text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors opacity-50 cursor-not-allowed" style="display: none;" disabled>
+            Confirm Booking
+          </button>
+        </div>
+      </div>
+      
+      <!-- Booking summary sidebar (for desktop) -->
+      <div id="price-summary" class="mt-6 bg-white p-5 rounded-lg shadow-sm hidden md:block" style="display: none;">
+        <h3 class="text-lg font-medium mb-4">Price Summary</h3>
+        <div id="price-breakdown" class="space-y-3">
+          <!-- Will be filled dynamically -->
+        </div>
+      </div>
+      
+      <!-- Footer with info -->
+      <div class="mt-8 bg-white p-4 rounded-lg shadow-sm">
+        <h3 class="text-sm font-medium text-gray-700 mb-2">Important Information</h3>
+        <ul class="text-xs text-gray-500 space-y-1">
+          <li>• You won't be charged until you confirm your booking.</li>
+          <li>• Cancellation policy: Full refund 48 hours before the start time.</li>
+          <li>• For any questions or special requests, please contact the host.</li>
+        </ul>
+        <div class="mt-4 pt-4 border-t text-xs text-gray-400">
+          <p>Location ID: <span id="location-id">Loading...</span></p>
+          <p>Data Source: <span id="data-source">Checking...</span></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t bg-white mt-12">
+    <div class="container mx-auto px-4 py-16">
+      <!-- Top section with logo and newsletter -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-12">
+        <div class="space-y-6">
+          <a href="/">
+            <div class="flex items-center">
+              <span class="text-2xl font-bold brand-blue">Blocmark</span>
+            </div>
+          </a>
+          <p class="text-gray-500 max-w-md">
+            Blocmark connects creative professionals with unique spaces for 
+            projects, photoshoots, and productions with transparent pricing and secure bookings.
+          </p>
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center text-sm text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Los Angeles, CA</span>
+            </div>
+            <div class="flex items-center text-sm text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <a href="mailto:info@blocmark.com" class="hover:text-blue-600">info@blocmark.com</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h3 class="font-semibold text-lg">Stay Updated</h3>
+          <p class="text-gray-500">
+            Subscribe to our newsletter for the latest locations, features, and industry insights.
+          </p>
+          <form class="flex flex-col sm:flex-row gap-3">
+            <input 
+              type="email" 
+              placeholder="Your email address" 
+              class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-64" 
+              required
+            />
+            <button
+              type="submit"
+              class="px-4 py-2 brand-blue-bg text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Subscribe
+              <svg xmlns="http://www.w3.org/2000/svg" class="inline-block ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Main footer content -->
+      <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 gap-y-10">
+        <!-- Company -->
+        <div class="space-y-4">
+          <h3 class="font-semibold text-base">Company</h3>
+          <ul class="space-y-2.5">
+            <li><a href="/about" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">About</a></li>
+            <li><a href="/blog" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Blog</a></li>
+            <li><a href="/guides" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Guides</a></li>
+            <li><a href="/careers" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Careers</a></li>
+          </ul>
+        </div>
+
+        <!-- Support -->
+        <div class="space-y-4">
+          <h3 class="font-semibold text-base">Support</h3>
+          <ul class="space-y-2.5">
+            <li><a href="/host" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">List Your Space</a></li>
+            <li><a href="/faq" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">FAQ</a></li>
+            <li><a href="/community" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Community</a></li>
+            <li><a href="/guidelines" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Guidelines</a></li>
+          </ul>
+        </div>
+
+        <!-- Activities -->
+        <div class="space-y-4">
+          <h3 class="font-semibold text-base">Activities</h3>
+          <ul class="space-y-2.5">
+            <li><a href="/search?activity=photo-shoot" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Photo Shoot</a></li>
+            <li><a href="/search?activity=filming" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Filming</a></li>
+            <li><a href="/search?activity=events" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Events</a></li>
+            <li><a href="/search?activity=meetings" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Meetings</a></li>
+          </ul>
+        </div>
+
+        <!-- Types -->
+        <div class="space-y-4">
+          <h3 class="font-semibold text-base">Types</h3>
+          <ul class="space-y-2.5">
+            <li><a href="/search?type=photo-studio" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Photo Studio</a></li>
+            <li><a href="/search?type=film-studio" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Film Studio</a></li>
+            <li><a href="/search?type=event-space" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Event Space</a></li>
+            <li><a href="/search?type=office" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Office Space</a></li>
+          </ul>
+        </div>
+
+        <!-- Cities -->
+        <div class="space-y-4">
+          <h3 class="font-semibold text-base">Cities</h3>
+          <ul class="space-y-2.5">
+            <li><a href="/search?city=los-angeles" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Los Angeles</a></li>
+            <li><a href="/search?city=new-york" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">New York</a></li>
+            <li><a href="/search?city=miami" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Miami</a></li>
+            <li><a href="/search?city=chicago" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Chicago</a></li>
+          </ul>
+        </div>
+
+        <!-- Social -->
+        <div class="space-y-4">
+          <h3 class="font-semibold text-base">Connect</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <!-- Social media icons -->
+            <a href="#" class="flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 hover:bg-blue-50 text-gray-500 hover:text-blue-600 transition-colors">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </a>
+            <a href="#" class="flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 hover:bg-blue-50 text-gray-500 hover:text-blue-600 transition-colors">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+              </svg>
+            </a>
+            <a href="#" class="flex items-center justify-center h-10 w-10 rounded-full bg-gray-100 hover:bg-blue-50 text-gray-500 hover:text-blue-600 transition-colors">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.33z" /><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-10 border-gray-200" />
+
+      <!-- Bottom section -->
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-gray-500">© 2025 Blocmark. All rights reserved.</p>
+        <div class="flex items-center gap-6">
+          <a href="/terms" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Terms</a>
+          <a href="/privacy" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Privacy</a>
+          <a href="/sitemap" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Sitemap</a>
+          <a href="/accessibility" class="text-sm text-gray-500 hover:text-blue-600 transition-colors">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Global variables
+    let bookingData = null;
+    let locationId = null;
+    let addons = [];
+    let selectedAddons = [];
+    
+    // Simple utility functions
+    function goBack() {
+      // Check if we have an ID parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const idParam = urlParams.get('id');
+      
+      if (idParam) {
+        // If we have an ID from URL params, use it
+        window.location.href = `/locations/${idParam}`;
+      } else if (locationId) {
+        // Use location ID from global variable
+        window.location.href = `/locations/${locationId}`;
+      } else {
+        // Otherwise check localStorage for bookingData that might have locationId
+        try {
+          const storedData = localStorage.getItem('bookingData');
+          if (storedData) {
+            const data = JSON.parse(storedData);
+            if (data.locationId) {
+              window.location.href = `/locations/${data.locationId}`;
+              return;
+            }
+          }
+        } catch (e) {
+          console.error('Error parsing localStorage data:', e);
+        }
+        
+        // Final fallback - go to locations list
+        window.location.href = '/locations';
+      }
+    }
+    
+    // Function to update booking data fields
+    function updateBookingField(fieldName, value) {
+      if (!bookingData) {
+        console.error('Booking data not available');
+        return;
+      }
+      
+      // Update the booking data object
+      bookingData[fieldName] = value;
+      
+      // Update the display
+      if (fieldName === 'activity') {
+        document.getElementById('activity-display').innerHTML = `<strong>Activity:</strong> ${value || 'Not specified'}`;
+      } else if (fieldName === 'castAndCrew') {
+        document.getElementById('cast-crew-display').textContent = value || 'Not specified';
+      }
+      
+      // Enable/disable confirm button based on whether required fields are filled
+      const activityValue = bookingData.activity || '';
+      const castAndCrewValue = bookingData.castAndCrew || '';
+      
+      if (activityValue.trim() && castAndCrewValue.trim()) {
+        document.getElementById('confirm-button').removeAttribute('disabled');
+        document.getElementById('confirm-button').classList.remove('opacity-50', 'cursor-not-allowed');
+      } else {
+        document.getElementById('confirm-button').setAttribute('disabled', 'true');
+        document.getElementById('confirm-button').classList.add('opacity-50', 'cursor-not-allowed');
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('bookingData', JSON.stringify(bookingData));
+    }
+    
+    function confirmBooking() {
+      // Validate required fields
+      if (!bookingData.activity || !bookingData.castAndCrew) {
+        alert('Please fill in all required fields (Activity and Cast & Crew)');
+        return;
+      }
+      
+      // Get selected add-ons
+      const selectedAddonIds = Array.from(document.querySelectorAll('.addon-checkbox:checked')).map(
+        checkbox => parseInt(checkbox.getAttribute('data-id'))
+      );
+      
+      // Add selected add-ons to booking data
+      bookingData.selectedAddons = selectedAddonIds;
+      
+      // Save updated booking data to localStorage
+      localStorage.setItem('bookingData', JSON.stringify(bookingData));
+      
+      // Show a nicer confirmation with more details
+      const confirmElement = document.getElementById('booking-content');
+      confirmElement.innerHTML = `
+        <div class="py-8 text-center">
+          <div class="flex items-center justify-center w-12 h-12 rounded-full bg-green-100 text-green-600 mx-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 class="mt-4 text-lg font-medium text-gray-900">Booking Confirmed!</h3>
+          <p class="mt-2 text-sm text-gray-500">
+            Your booking has been confirmed. You'll receive a confirmation email shortly.
+          </p>
+          <div class="mt-6">
+            <button onclick="goToHomePage()" class="px-4 py-2 brand-blue-bg text-white rounded-md hover:bg-blue-700">
+              Return to Home
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Hide other sections
+      document.getElementById('addons-section').style.display = 'none';
+      document.getElementById('price-summary').style.display = 'none';
+      
+      // Hide the footer buttons
+      document.querySelector('.border-t.p-6.flex').style.display = 'none';
+      
+      // Update step indicator - mark step 3 as complete
+      document.querySelectorAll('.step')[2].classList.add('complete');
+      document.querySelectorAll('.step')[2].classList.remove('active');
+      document.querySelectorAll('.step-line')[1].classList.add('active');
+    }
+    
+    function goToHomePage() {
+      window.location.href = '/';
+    }
+    
+    // Add-on related functions
+    function handleAddonSelect(addonId) {
+      // Update selected addons array
+      const checkbox = document.querySelector(`.addon-checkbox[data-id="${addonId}"]`);
+      
+      if (checkbox.checked) {
+        selectedAddons.push(addons.find(addon => addon.id === parseInt(addonId)));
+      } else {
+        selectedAddons = selectedAddons.filter(addon => addon.id !== parseInt(addonId));
+      }
+      
+      // Update price breakdown
+      updatePriceBreakdown();
+    }
+    
+    function updatePriceBreakdown() {
+      // Calculate totals with selected add-ons
+      const basePrice = bookingData.basePrice || 0;
+      const serviceFee = bookingData.serviceFee || 0;
+      
+      // Calculate add-ons total
+      let addonsTotal = 0;
+      selectedAddons.forEach(addon => {
+        addonsTotal += addon.price;
+      });
+      
+      // Calculate new total
+      const total = basePrice + serviceFee + addonsTotal;
+      
+      // Update price breakdown display
+      const priceBreakdownEl = document.getElementById('price-breakdown');
+      
+      let html = `
+        <div class="flex justify-between">
+          <span class="text-gray-500">Base rate (${bookingData.hours || 0} hours)</span>
+          <span>${formatCurrency(basePrice)}</span>
+        </div>
+      `;
+      
+      if (selectedAddons.length > 0) {
+        selectedAddons.forEach(addon => {
+          html += `
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">${addon.name}</span>
+              <span>${formatCurrency(addon.price)}</span>
+            </div>
+          `;
+        });
+      }
+      
+      html += `
+        <div class="flex justify-between">
+          <span class="text-gray-500">Service fee</span>
+          <span>${formatCurrency(serviceFee)}</span>
+        </div>
+        <div class="flex justify-between font-medium text-lg pt-3 border-t">
+          <span>Total</span>
+          <span>${formatCurrency(total)}</span>
+        </div>
+      `;
+      
+      priceBreakdownEl.innerHTML = html;
+      
+      // Make price summary visible
+      document.getElementById('price-summary').style.display = 'block';
+      
+      // Update main content price breakdown too
+      const mainPriceEl = document.querySelector('#booking-content .space-y-3');
+      if (mainPriceEl) {
+        mainPriceEl.innerHTML = html;
+      }
+    }
+    
+    function loadAddons() {
+      if (!locationId) {
+        console.error('Cannot load add-ons: location ID is missing');
+        return;
+      }
+      
+      document.getElementById('addons-section').style.display = 'block';
+      
+      // Show loading state
+      document.getElementById('addons-loading').style.display = 'block';
+      document.getElementById('addons-list').innerHTML = '';
+      document.getElementById('no-addons').classList.add('hidden');
+      
+      // Fetch add-ons from API
+      fetch(`/api/locations/${locationId}/addons`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch add-ons: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Store add-ons globally
+          addons = data;
+          
+          // Hide loading indicator
+          document.getElementById('addons-loading').style.display = 'none';
+          
+          if (data.length === 0) {
+            // Show no add-ons message
+            document.getElementById('no-addons').classList.remove('hidden');
+          } else {
+            // Render add-ons
+            const addonsListEl = document.getElementById('addons-list');
+            
+            data.forEach((addon, index) => {
+              // Create add-on card with animation delay
+              const card = document.createElement('div');
+              card.className = `addon-card fade-in bg-white border rounded-lg p-4 flex flex-col justify-between`;
+              card.style.animationDelay = `${index * 0.1}s`;
+              
+              card.innerHTML = `
+                <div>
+                  <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center">
+                      <input 
+                        type="checkbox" 
+                        id="addon-${addon.id}" 
+                        class="custom-checkbox addon-checkbox mr-3" 
+                        data-id="${addon.id}"
+                        onchange="handleAddonSelect(${addon.id})"
+                      />
+                      <label for="addon-${addon.id}" class="font-medium cursor-pointer">${addon.name}</label>
+                    </div>
+                    <div class="text-right">
+                      <span class="font-medium">${formatCurrency(addon.price)}</span>
+                      <span class="block text-xs text-gray-500">per ${addon.priceUnit || 'booking'}</span>
+                    </div>
+                  </div>
+                  <p class="text-sm text-gray-600 ml-8">${addon.description}</p>
+                </div>
+              `;
+              
+              addonsListEl.appendChild(card);
+            });
+          }
+          
+          // Initialize price breakdown
+          updatePriceBreakdown();
+        })
+        .catch(error => {
+          console.error('Error loading add-ons:', error);
+          
+          // Hide loading indicator
+          document.getElementById('addons-loading').style.display = 'none';
+          
+          // Show error message
+          document.getElementById('addons-list').innerHTML = `
+            <div class="col-span-full bg-red-50 border border-red-200 text-red-700 rounded-md p-4">
+              <div class="font-medium">Failed to load add-ons</div>
+              <p class="mt-1 text-sm">
+                There was a problem loading available add-ons. Please try again later.
+              </p>
+            </div>
+          `;
+        });
+    }
+    
+    // Format functions
+    function formatCurrency(amount) {
+      return '$' + (parseFloat(amount) || 0).toFixed(2);
+    }
+    
+    function formatTime(timeString) {
+      if (!timeString) return '00:00';
+      
+      const hour = parseInt(timeString.split(':')[0]);
+      if (hour === 0) return '12:00 AM';
+      if (hour < 12) return `${hour}:00 AM`;
+      if (hour === 12) return '12:00 PM';
+      return `${hour - 12}:00 PM`;
+    }
+    
+    // When the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Page loaded, getting booking data');
+      
+      // Get location ID from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const idParam = urlParams.get('id');
+      
+      if (idParam) {
+        locationId = idParam;
+        document.getElementById('location-id').textContent = idParam;
+      }
+      
+      // Try to load booking data
+      // First check URL parameters
+      const dataParam = urlParams.get('data');
+      
+      if (dataParam) {
+        try {
+          bookingData = JSON.parse(decodeURIComponent(dataParam));
+          document.getElementById('data-source').textContent = 'URL parameters';
+          console.log('Loaded data from URL parameters');
+        } catch (error) {
+          console.error('Error parsing URL data:', error);
+        }
+      }
+      
+      // If no data in URL, try localStorage
+      if (!bookingData) {
+        try {
+          const storedData = localStorage.getItem('bookingData');
+          if (storedData) {
+            bookingData = JSON.parse(storedData);
+            document.getElementById('data-source').textContent = 'localStorage';
+            console.log('Loaded data from localStorage');
+          }
+        } catch (error) {
+          console.error('Error loading from localStorage:', error);
+        }
+      }
+      
+      // Update the UI based on loaded data
+      const contentElement = document.getElementById('booking-content');
+      
+      if (bookingData) {
+        console.log('Booking data found:', bookingData);
+        
+        // Update location ID if available in booking data
+        if (bookingData.locationId) {
+          locationId = bookingData.locationId;
+          document.getElementById('location-id').textContent = bookingData.locationId;
+        }
+        
+        // Show booking details
+        contentElement.innerHTML = `
+          <!-- Activity and Cast & Crew Input Form -->
+          <div class="p-5 border-b">
+            <div class="font-medium mb-3 text-gray-800">Please complete these required fields</div>
+            <div class="space-y-4">
+              <div>
+                <label for="activity-input" class="block text-sm font-medium text-gray-700 mb-1">Activity Details</label>
+                <textarea 
+                  id="activity-input" 
+                  placeholder="Describe your specific activity (e.g. Fashion photo shoot, TV commercial, etc.)" 
+                  class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px] resize-y"
+                  onchange="updateBookingField('activity', this.value)"
+                  oninput="updateBookingField('activity', this.value)"
+                ></textarea>
+                <p class="text-xs text-gray-500 mt-1">Please be as specific as possible</p>
+              </div>
+              
+              <div>
+                <label for="cast-crew-select" class="block text-sm font-medium text-gray-700 mb-1">Cast & Crew Size</label>
+                <select 
+                  id="cast-crew-select" 
+                  class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onchange="updateBookingField('castAndCrew', this.value)"
+                >
+                  <option value="">Select crew size</option>
+                  <option value="1-5 people">1-5 people</option>
+                  <option value="6-10 people">6-10 people</option>
+                  <option value="11-20 people">11-20 people</option>
+                  <option value="21-50 people">21-50 people</option>
+                  <option value="50+ people">50+ people</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Booking Summary -->
+          <div class="p-5 bg-blue-50 rounded-md border border-blue-100 mt-5">
+            <div class="font-medium mb-3 text-gray-800">Booking Details</div>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-500">Date: </span>
+                <span class="font-medium">${bookingData.startDate || 'Not specified'}</span>
+              </div>
+              <div>
+                <span class="text-gray-500">Time: </span>
+                <span class="font-medium">${formatTime(bookingData.startTime)} - ${formatTime(bookingData.endTime)}</span>
+              </div>
+              <div>
+                <span class="text-gray-500">Group Size: </span>
+                <span class="font-medium">${bookingData.guestCount || 0} people</span>
+              </div>
+              <div>
+                <span class="text-gray-500">Duration: </span>
+                <span class="font-medium">${bookingData.hours || 'N/A'} hours</span>
+              </div>
+              <div>
+                <span class="text-gray-500">Activity Type: </span>
+                <span class="font-medium">${bookingData.activityType || 'Not specified'}</span>
+              </div>
+              <div>
+                <span class="text-gray-500">Cast & Crew: </span>
+                <span id="cast-crew-display" class="font-medium">${bookingData.castAndCrew || 'Not specified'}</span>
+              </div>
+            </div>
+            
+            ${bookingData.projectName ? `
+            <div class="mt-4 pt-4 border-t border-blue-100">
+              <div class="text-gray-500 text-xs">Project Details</div>
+              <div class="font-medium mt-1">${bookingData.projectName}</div>
+              <div id="activity-display" class="text-sm mt-2">
+                <strong>Activity:</strong> ${bookingData.activity || 'Not yet specified'}
+              </div>
+              <div class="text-sm mt-1">${bookingData.projectDescription || 'No description provided'}</div>
+            </div>
+            ` : ''}
+          </div>
+          
+          <div class="space-y-3 border-t pt-4 mt-4">
+            <div class="flex justify-between">
+              <span class="text-gray-500">Base rate (${bookingData.hours || 0} hours)</span>
+              <span>${formatCurrency(bookingData.basePrice)}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-500">Service fee</span>
+              <span>${formatCurrency(bookingData.serviceFee)}</span>
+            </div>
+            <div class="flex justify-between font-medium text-lg pt-3 border-t">
+              <span>Total</span>
+              <span>${formatCurrency(bookingData.totalPrice)}</span>
+            </div>
+          </div>
+        `;
+        
+        // Show confirm button
+        document.getElementById('confirm-button').style.display = 'block';
+        
+        // Load add-ons if we have a location ID
+        if (locationId) {
+          loadAddons();
+        }
+      } else {
+        console.log('No booking data found');
+        
+        // Show error message
+        contentElement.innerHTML = `
+          <div class="bg-red-50 border border-red-200 text-red-800 rounded-md p-4">
+            <div class="font-medium">No booking data found</div>
+            <p class="mt-1 text-sm">
+              We couldn't find your booking details. Please return to the location page and try again.
+            </p>
+            <button onclick="goBack()" class="mt-4 px-4 py-2 bg-white border border-red-300 text-red-700 rounded-md hover:bg-red-50">
+              Return to Location
+            </button>
+          </div>
+        `;
+        document.getElementById('data-source').textContent = 'None';
+      }
+    });
+    
+    // Menu handling functions for slide-out panels (user menu)
+    function toggleMenu(menuId) {
+      // Close all menus first
+      closeAllMenus();
+      closeAllDropdowns();
+      
+      // Open the selected panel menu
+      const menuElement = document.getElementById(menuId);
+      const overlay = document.getElementById('menuOverlay');
+      
+      if (menuElement && overlay) {
+        menuElement.classList.remove('translate-x-full');
+        overlay.classList.remove('hidden');
+      }
+    }
+    
+    function closeAllMenus() {
+      // Hide all slide-out panel menus
+      const menus = ['userMenu']; // Only the user menu is a slide panel now
+      const overlay = document.getElementById('menuOverlay');
+      
+      menus.forEach(menuId => {
+        const menu = document.getElementById(menuId);
+        if (menu) {
+          menu.classList.add('translate-x-full');
+        }
+      });
+      
+      if (overlay) {
+        overlay.classList.add('hidden');
+      }
+    }
+    
+    // Dropdown menu handling (language and notifications)
+    function toggleDropdown(dropdownId) {
+      // Close all menus
+      closeAllMenus();
+      closeAllDropdowns();
+      
+      // Toggle the requested dropdown
+      const dropdown = document.getElementById(dropdownId);
+      if (dropdown) {
+        dropdown.classList.toggle('hidden');
+        
+        // Click outside to close
+        document.addEventListener('click', closeDropdownsOnClickOutside);
+      }
+    }
+    
+    function closeAllDropdowns() {
+      // Hide all dropdown menus
+      const dropdowns = ['languageDropdown', 'notificationsDropdown'];
+      
+      dropdowns.forEach(dropdownId => {
+        const dropdown = document.getElementById(dropdownId);
+        if (dropdown) {
+          dropdown.classList.add('hidden');
+        }
+      });
+      
+      // Remove click outside listener
+      document.removeEventListener('click', closeDropdownsOnClickOutside);
+    }
+    
+    function closeDropdownsOnClickOutside(event) {
+      const dropdowns = ['languageDropdown', 'notificationsDropdown'];
+      
+      // Check if click is outside all dropdowns and their buttons
+      let clickedOutside = true;
+      
+      for (const id of dropdowns) {
+        const dropdown = document.getElementById(id);
+        const buttonId = id.replace('Dropdown', '');
+        const buttons = document.querySelectorAll(`button[onclick*="${buttonId}"]`);
+        
+        // Check if click is inside the dropdown
+        if (dropdown && dropdown.contains(event.target)) {
+          clickedOutside = false;
+          break;
+        }
+        
+        // Check if click is on any of the buttons
+        for (const button of buttons) {
+          if (button.contains(event.target)) {
+            clickedOutside = false;
+            break;
+          }
+        }
+      }
+      
+      if (clickedOutside) {
+        closeAllDropdowns();
+      }
+    }
+    
+    // Close menus when pressing escape
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeAllMenus();
+        closeAllDropdowns();
+      }
+    });
+  </script>
+  
+  <!-- Slide-in menus for the header buttons -->
+  <!-- User menu panel -->
+  <div id="userMenu" class="fixed inset-y-0 right-0 transform translate-x-full w-80 bg-white shadow-xl z-50 overflow-y-auto transition-transform duration-300 ease-in-out">
+    <div class="p-4 border-b">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Account</h3>
+        <button onclick="toggleMenu('userMenu')" class="p-2 rounded-md hover:bg-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="p-4">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          MI
+        </div>
+        <div>
+          <p class="font-medium">Michael Irwin</p>
+          <p class="text-sm text-gray-500">michael@example.com</p>
+        </div>
+      </div>
+      <nav class="space-y-1">
+        <a href="/dashboard" class="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+            <path d="M16 2v4"></path>
+            <path d="M8 2v4"></path>
+            <path d="M3 10h18"></path>
+          </svg>
+          <span>My Bookings</span>
+        </a>
+        <a href="/account" class="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Profile Settings</span>
+        </a>
+        <a href="/settings" class="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <span>Account Settings</span>
+        </a>
+        <a href="/favorites" class="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+          </svg>
+          <span>Saved Locations</span>
+        </a>
+        <a href="/payments" class="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+            <line x1="2" x2="22" y1="10" y2="10"></line>
+          </svg>
+          <span>Payment Methods</span>
+        </a>
+      </nav>
+      <div class="border-t mt-6 pt-6">
+        <button class="w-full flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Only the user menu now remains as a slide-out panel -->
+
+  <!-- Overlay when menu is open -->
+  <div id="menuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="closeAllMenus()"></div>
+</body>
+</html>

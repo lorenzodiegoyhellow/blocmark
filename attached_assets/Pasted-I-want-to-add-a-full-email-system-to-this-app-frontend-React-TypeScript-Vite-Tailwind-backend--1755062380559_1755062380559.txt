@@ -1,0 +1,36 @@
+I want to add a full email system to this app (frontend: React/TypeScript/Vite + Tailwind; backend: Node/Express + TypeScript; DB: Postgres with Drizzle).
+Use cases:
+
+    Welcome email on signup (double opt-in optional).
+
+    Password reset emails.
+
+    Marketing/broadcast campaigns (with unsubscribe & list management).
+
+    Transactional notifications: new message received, new booking, booking updates.
+
+Propose the best plan of action and wait for my approval before making any changes. Your plan should include:
+
+    Recommended email provider(s) (e.g., Postmark, SendGrid, Mailgun, AWS SES) with pros/cons for our stack and expected volume, plus cost/deliverability considerations.
+
+    Domain setup steps for deliverability (SPF, DKIM, DMARC, bounce/complaint handling).
+
+    Architecture: where to place email sending code, template rendering approach (MJML/React Email/Handlebars), and environment variable schema.
+
+    Data model changes in Postgres/Drizzle (tables for email_events, marketing_subscriptions, message_notifications, templates, campaigns, user_email_preferences). Include example Drizzle schemas.
+
+    API endpoints/services and background jobs (e.g., queue with BullMQ/Redis) for reliable send + retry, rate limiting, and idempotency.
+
+    Trigger points in the app (signup, request password reset, message received, booking created/updated) with clear pseudo-code for each.
+
+    Template list to create (welcome, verify email, password reset, message notification, booking created/updated/cancelled, marketing base) with subject line conventions and variables each template needs.
+
+    Marketing compliance: unsubscribe flows, one-click list-unsubscribe header, consent tracking (GDPR/CCPA/CAN-SPAM), and segmentation strategy.
+
+    Observability: provider webhooks for deliveries/opens/clicks/bounces/spam complaints stored in DB; minimal dashboards/queries to view status.
+
+    Local/staging strategy: local email preview (e.g., Mailhog/React Email previewer), sandbox keys, fixture data, and e2e test plan.
+
+    Rollout plan with phases (Phase 1: provider + welcome & reset; Phase 2: transactional; Phase 3: marketing), time estimates, risks, and fallback.
+
+Do not modify any code yet. First output the full plan, assumptions, and a checklist. After I approve, propose specific PRs with file paths and exact changes.

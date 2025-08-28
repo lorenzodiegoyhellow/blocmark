@@ -1,0 +1,103 @@
+
+
+BLOCMARK HOST TERMS OF AGREEMENT
+
+This Host Terms of Agreement (“Agreement”) is entered into between you (“Host”) and We Are Yhellow LLC, doing business as Blocmark (“Blocmark,” “we,” “our,” “us”). By listing your location on the Blocmark platform, you agree to the terms outlined below.
+1. Blocmark’s Role
+
+Blocmark is a digital platform that allows Hosts to list and offer their properties for rent to third parties (“Renters”) for photography, video production, events, or other permitted activities.
+Blocmark is not a party to any rental or usage agreement between you and the Renter. We only facilitate the booking process and do not control, manage, or supervise any property or interaction between Host and Renter.
+2. Ownership Requirement
+
+    You may only list a property on Blocmark if you are the legal owner of the property.
+
+    By listing a location, you certify that you have full legal ownership and the authority to rent it out.
+
+    It is strictly prohibited to list any property as a broker, agent, manager, tenant, or third party unless you can provide legal documentation proving full ownership rights and Blocmark has given prior written consent.
+
+    Violation of this clause may result in immediate account suspension, removal of listings, and potential legal action.
+
+3. Host Responsibilities
+
+    You are solely responsible for the safety, condition, legality, and compliance of your listed property.
+
+    You must provide accurate, complete, and truthful information in your listing.
+
+    You are responsible for obtaining all permits, licenses, and insurance necessary to rent your space.
+
+    You must follow all applicable laws, including zoning, occupancy limits, and safety regulations.
+
+    You agree to maintain your property in a clean and usable condition for each confirmed booking.
+
+4. Booking and Renter Conduct
+
+    You may accept or decline booking requests at your discretion.
+
+    You are responsible for setting and enforcing your own property rules (e.g., hours of use, noise limits, guest maximums).
+
+    Blocmark does not guarantee the behavior of Renters or their guests.
+
+5. Liability and Damages
+
+    Blocmark is not liable for any damage, theft, personal injury, loss, or illegal activity occurring at your property during a booking.
+
+    You agree to release and hold Blocmark harmless from any claims or disputes arising from use of your property by Renters or third parties.
+
+    We strongly recommend that you request a security deposit or Certificate of Insurance (COI) from Renters to cover potential damage or liability.
+
+    It is your responsibility to inspect your property before and after each booking.
+
+6. Payments and Fees
+
+    Blocmark charges a commission on each completed booking (typically 10%).
+
+    All payments are processed via Stripe. Blocmark is not responsible for delays, holds, or processing errors caused by Stripe or the banking system.
+
+    Blocmark may withhold or delay Host payouts in the case of suspected fraud, unresolved disputes, or violations of this Agreement.
+
+7. Cancellations and Disputes
+
+    You may define your own cancellation policy, which must be clearly stated in your listing.
+
+    Blocmark may assist in mediating disputes but does not guarantee resolution, refunds, or enforcement of any agreement between you and a Renter.
+
+8. Content and Licensing
+
+    By submitting photos, videos, or written descriptions to Blocmark, you grant Blocmark a worldwide, royalty-free, non-exclusive license to use, reproduce, and display your content for the purpose of marketing and promoting your listing and the platform.
+
+    You certify that any content you upload (photos, videos, descriptions) accurately represents the property and that you have the full legal right to use and share this content.
+
+9. Account Suspension and Removal
+
+Blocmark reserves the right to remove listings or suspend accounts at its sole discretion, including but not limited to:
+
+    Listing a property you do not own
+
+    False or misleading information
+
+    Unsafe or illegal conditions
+
+    Customer complaints
+
+    Repeated booking violations
+
+10. Indemnification
+
+You agree to indemnify and defend Blocmark, its employees, partners, and affiliates from any claim, loss, liability, damage, or cost (including attorney’s fees) related to:
+
+    The use of your property by Renters or guests
+
+    Your violation of this Agreement or any law
+
+    Any injury or incident occurring at your property
+
+    Misrepresentation of ownership or authorization to list the property
+
+11. Modifications
+
+Blocmark may modify these terms at any time. Continued use of the platform after changes are posted constitutes acceptance of the updated Agreement.
+12. Governing Law
+
+This Agreement shall be governed by the laws of the State of California. Any disputes will be resolved in the courts of Los Angeles County, California.
+
+By listing your property on Blocmark, you acknowledge that you have read, understood, and agreed to these terms.

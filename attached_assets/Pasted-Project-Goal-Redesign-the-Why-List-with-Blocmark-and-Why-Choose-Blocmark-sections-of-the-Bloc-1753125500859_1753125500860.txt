@@ -1,0 +1,76 @@
+Project Goal:
+Redesign the "Why List with Blocmark?" and "Why Choose Blocmark?" sections of the Blocmark homepage to feel bold, premium, and cinematic, while keeping a clean, minimal aesthetic. Use Tailwind CSS and optionally Framer Motion or GSAP for subtle animations.
+✨ Design Requirements:
+🔷 1. General Layout
+
+    Replace toggle buttons ("Property Owner" / "Renter") with either:
+
+        Scroll-triggered split sections, OR
+
+        Animated tabs that transition between "Hosts" and "Renters" sections
+
+    Add a full-width hero visual (image or background video) at the top of this block, with a strong header and subheadline:
+
+    Header: Your Space. Their Vision. One Effortless Platform.
+    Subheadline: Blocmark empowers creators and property owners to connect through curated, intelligent, and frictionless bookings.
+
+🔷 2. Section A – For Hosts (Property Owners)
+
+Display six cards with bold icons, bolder titles, and updated copy:
+Icon	Title	Description
+💸	Get Paid in 24h	Forget 30-day payouts. We transfer your money within 24 hours of a completed booking.
+🗓️	Own Your Schedule	You’re in control — set your own calendar and blackout dates with one click.
+🛡️	Peace of Mind	Each booking includes damage & liability coverage, automatically.
+🚀	Zero to Booked Fast	No setup fees. No monthly costs. Start earning today.
+🌍	Spotlight Exposure	Be discovered in curated features, collections, and editorial picks.
+🎛️	Effortless Control	A modern dashboard to manage everything from bookings to payments, beautifully.
+
+    Include a quote/testimonial at the bottom:
+
+        “I listed my studio on Blocmark and booked 4 shoots in the first week — without lifting a finger.”
+        — Mia R., DTLA property owner
+
+🔷 3. Section B – For Renters (Creators)
+
+Display another set of six bold feature cards:
+Icon	Title	Description
+✅	Verified. Vetted. Valued.	Every space is handpicked by our team. No randomness, no surprises.
+🤖	AI That Gets You	Tell us what you need — our AI matches you with the perfect space instantly.
+🔒	Book With Confidence	Secure payments. Transparent terms. You’re covered.
+⏱️	Book in Minutes	Search. Chat. Book. All in one smooth flow.
+🔦	Hidden Gems Await	Discover secret corners, off-the-grid gems, and exclusive listings.
+🧠	Smart Support	Our AI and real people are available 24/7 to guide you.
+
+    Include a quote/testimonial at the bottom:
+
+        “Blocmark’s AI found me a location I wouldn’t have found in 100 hours of searching. Unreal.”
+        — Brandon G., filmmaker
+
+🔷 4. Interactivity & Motion
+
+    Add hover animations for cards (subtle glow, icon animation, or shadow lift).
+
+    Use staggered entry animation for the cards (e.g., fade-up or slide-in).
+
+    Tabs/sections should have smooth transitions when switching.
+
+🔷 5. Call to Action (Final)
+
+End with a full-width CTA section:
+
+Header: Ready to turn your space into a film set? Or find your next dream shoot location?
+
+Buttons:
+[ I’m a Property Owner → ]
+[ I’m a Renter / Creator → ]
+
+On mobile: stack buttons full width, with transitions on hover.
+✅ Tech Requirements:
+
+    Use Tailwind CSS for styling
+
+    Optional: Framer Motion or GSAP for animation
+
+    Must be responsive on all screen sizes
+
+    Code should be modular and clean for easy integration into the existing homepage

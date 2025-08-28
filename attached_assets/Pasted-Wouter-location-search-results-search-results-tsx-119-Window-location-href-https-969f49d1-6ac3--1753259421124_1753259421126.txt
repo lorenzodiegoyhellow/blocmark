@@ -1,0 +1,49 @@
+Wouter location: /search-results
+search-results.tsx:119 Window location.href: https://969f49d1-6ac3-4f09-bd8d-6d1eb2b9555c-00-3syn7tnn2zoo7.picard.replit.dev/search-results?q=Los+Angeles&mode=classic
+search-results.tsx:120 Window location.search: ?q=Los+Angeles&mode=classic
+search-results.tsx:121 Query param (q) from URL: Los Angeles
+search-results.tsx:122 Initial activeFilters: Object
+search-results.tsx:158 SearchResultsPage - Initial render: Object
+search-results.tsx:578 === LOCATION FILTERING RESULTS ===
+search-results.tsx:579 Total locations from API: 0
+search-results.tsx:580 Locations after filtering: 0
+search-results.tsx:581 Active filters applied: Object
+search-results.tsx:372 === LOCATION SEARCH REQUEST ===
+search-results.tsx:373 Fetching locations with URL: /api/locations/search?q=Los+Angeles&city=Los+Angeles&lat=34.0549076&lng=-118.242643&radius=50
+search-results.tsx:406  Error fetching locations: ReferenceError: parsedFilters is not defined
+    at queryFn (search-results.tsx:376:17)
+    at Object.fetchFn [as fn] (query.ts:429:14)
+    at run (retryer.ts:153:49)
+    at Object.start (retryer.ts:218:9)
+    at _a4.fetch (query.ts:540:26)
+    at _a9.executeFetch_fn (queryObserver.ts:346:71)
+    at _a9.setOptions (queryObserver.ts:199:7)
+    at useBaseQuery.ts:109:14
+    at commitHookEffectListMount (react-dom.development.js:23189:26)
+    at commitPassiveMountOnFiber (react-dom.development.js:24965:13)
+queryFn @ search-results.tsx:406
+search-results.tsx:117 === SEARCH RESULTS PAGE LOADED ===
+search-results.tsx:118 Wouter location: /search-results
+search-results.tsx:119 Window location.href: https://969f49d1-6ac3-4f09-bd8d-6d1eb2b9555c-00-3syn7tnn2zoo7.picard.replit.dev/search-results?q=Los+Angeles&mode=classic
+search-results.tsx:120 Window location.search: ?q=Los+Angeles&mode=classic
+search-results.tsx:121 Query param (q) from URL: Los Angeles
+search-results.tsx:122 Initial activeFilters: Object
+search-results.tsx:158 SearchResultsPage - Initial render: Object
+search-results.tsx:578 === LOCATION FILTERING RESULTS ===
+search-results.tsx:579 Total locations from API: 0
+search-results.tsx:580 Locations after filtering: 0
+search-results.tsx:581 Active filters applied: Object
+map-view.tsx:25 MapView component rendered with center: Object zoom: 12
+map-view.tsx:25 MapView component rendered with center: Object zoom: 12
+queryClient.ts:143 Cached data for /api/notifications
+queryClient.ts:143 Cached data for /api/notifications/unread/count
+queryClient.ts:143 Cached data for /api/messages
+queryClient.ts:143 Cached data for /api/bookings/host
+queryClient.ts:145  Could not cache data in localStorage: QuotaExceededError: Failed to execute 'setItem' on 'Storage': Setting the value of 'cache__api_locations_owner' exceeded the quota.
+    at queryClient.ts:142:24
+(anonymous) @ queryClient.ts:145
+[NEW] Explain Console errors by using Copilot in Edge: click
+         
+         to explain an error. 
+        Learn more
+        Don't show again

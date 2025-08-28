@@ -1,0 +1,121 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+booking-checkout.tsx:48 Loading Stripe with key: pk_test_51RneKqRJ1Ml...
+search-results.tsx:115 === SEARCH RESULTS PAGE LOADED ===
+search-results.tsx:116 URL: /search-results
+search-results.tsx:117 Query param (q): 
+search-results.tsx:148 SearchResultsPage - Initial render: {queryParam: '', locationDisplayName: 'Los Angeles, CA, USA', mapCenter: {…}, currentUrl: '/search-results'}
+map-view.tsx:25 MapView component rendered with center: {lat: 34.0522, lng: -118.2437} zoom: 12
+search-results.tsx:160 === GEOCODING EFFECT TRIGGERED ===
+search-results.tsx:161 queryParam: 
+search-results.tsx:162 activeFilters.city: undefined
+search-results.tsx:167 Geocoding city: undefined Query param: 
+use-host-mode.tsx:32 Host mode changed: true
+queryClient.ts:104 Fetching: /api/user
+search-results.tsx:115 === SEARCH RESULTS PAGE LOADED ===
+search-results.tsx:116 URL: /search-results
+search-results.tsx:117 Query param (q): 
+search-results.tsx:148 SearchResultsPage - Initial render: {queryParam: '', locationDisplayName: 'Los Angeles, CA, USA', mapCenter: {…}, currentUrl: '/search-results'}
+search-results.tsx:357 Fetching locations with URL: /api/locations/search?capacity=5
+search-results.tsx:358 Map center: {lat: 34.0522, lng: -118.2437}
+search-results.tsx:359 Geocoding complete: true
+js?key=AIzaSyCDOpgMG2Z9dyy8pJQkf2IVcvEzoKrBoO4&libraries=geometry,places:1387  Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+jda @ js?key=AIzaSyCDOpgMG2Z9dyy8pJQkf2IVcvEzoKrBoO4&libraries=geometry,places:1387
+(anonymous) @ js?key=AIzaSyCDOpgMG2Z9dyy8pJQkf2IVcvEzoKrBoO4&libraries=geometry,places:14
+(anonymous) @ js?key=AIzaSyCDOpgMG2Z9dyy8pJQkf2IVcvEzoKrBoO4&libraries=geometry,places:1625
+(anonymous) @ js?key=AIzaSyCDOpgMG2Z9dyy8pJQkf2IVcvEzoKrBoO4&libraries=geometry,places:1625
+queryClient.ts:143 Cached data for /api/user
+queryClient.ts:104 Fetching: /api/messages
+queryClient.ts:104 Fetching: /api/bookings/host
+queryClient.ts:104 Fetching: /api/notifications
+queryClient.ts:104 Fetching: /api/notifications/unread/count
+queryClient.ts:104 Fetching: /api/locations/owner
+queryClient.ts:143 Cached data for /api/notifications
+search-results.tsx:373 Received locations: 6 items
+search-results.tsx:115 === SEARCH RESULTS PAGE LOADED ===
+search-results.tsx:116 URL: /search-results
+search-results.tsx:117 Query param (q): 
+search-results.tsx:148 SearchResultsPage - Initial render: {queryParam: '', locationDisplayName: 'Los Angeles, CA, USA', mapCenter: {…}, currentUrl: '/search-results'}
+map-view.tsx:25 MapView component rendered with center: {lat: 34.0522, lng: -118.2437} zoom: 12
+queryClient.ts:104 Fetching: /api/locations/26/saved
+queryClient.ts:104 Fetching: /api/locations/25/saved
+queryClient.ts:104 Fetching: /api/locations/16/saved
+queryClient.ts:104 Fetching: /api/locations/15/saved
+queryClient.ts:104 Fetching: /api/locations/14/saved
+queryClient.ts:104 Fetching: /api/locations/12/saved
+map-view.tsx:25 MapView component rendered with center: {lat: 34.0522, lng: -118.2437} zoom: 12
+queryClient.ts:143 Cached data for /api/notifications/unread/count
+js?key=AIzaSyCDOpgMG2Z9dyy8pJQkf2IVcvEzoKrBoO4&libraries=geometry,places:1302  As of February 21st, 2024, google.maps.Marker is deprecated. Please use google.maps.marker.AdvancedMarkerElement instead. At this time, google.maps.Marker is not scheduled to be discontinued, but google.maps.marker.AdvancedMarkerElement is recommended over google.maps.Marker. While google.maps.Marker will continue to receive bug fixes for any major regressions, existing bugs in google.maps.Marker will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/deprecations for additional details and https://developers.google.com/maps/documentation/javascript/advanced-markers/migration for the migration guide.
+(anonymous) @ js?key=AIzaSyCDOpgMG2Z9dyy8pJQkf2IVcvEzoKrBoO4&libraries=geometry,places:1302
+(anonymous) @ map-view.tsx:152
+(anonymous) @ geocoder.js:9
+(anonymous) @ geocoder.js:4
+eKa @ geocoder.js:3
+f @ geocoder.js:4
+c @ common.js:115
+(anonymous) @ GeocodeService.Search?4s443%20San%20Pedro%20Street&9sen-US&r_url=https%3A%2F%2F969f49d1-6ac3-4f09-bd8d-6d1eb2b9555c-00-3syn7tnn2zoo7.picard.replit.dev%2Fsearch-results&callback=_xdc_._yqlqte&key=AIzaSyCDOpgMG2Z9dyy8pJQkf2IVcvEzoKrBoO4&token=14544:1
+queryClient.ts:143 Cached data for /api/locations/26/saved
+queryClient.ts:145  Could not cache data in localStorage: QuotaExceededError: Failed to execute 'setItem' on 'Storage': Setting the value of 'cache__api_locations_owner' exceeded the quota.
+    at queryClient.ts:142:24
+(anonymous) @ queryClient.ts:145
+await in (anonymous)
+fetchFn @ query.ts:429
+run @ retryer.ts:153
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+onSubscribe @ queryObserver.ts:108
+subscribe @ subscribable.ts:11
+(anonymous) @ useBaseQuery.ts:92
+subscribeToStore @ react-dom.development.js:16139
+commitHookEffectListMount @ react-dom.development.js:23189
+commitPassiveMountOnFiber @ react-dom.development.js:24965
+commitPassiveMountEffects_complete @ react-dom.development.js:24930
+commitPassiveMountEffects_begin @ react-dom.development.js:24917
+commitPassiveMountEffects @ react-dom.development.js:24905
+flushPassiveEffectsImpl @ react-dom.development.js:27078
+flushPassiveEffects @ react-dom.development.js:27023
+commitRootImpl @ react-dom.development.js:26974
+commitRoot @ react-dom.development.js:26721
+performSyncWorkOnRoot @ react-dom.development.js:26156
+flushSyncCallbacks @ react-dom.development.js:12042
+(anonymous) @ react-dom.development.js:25690
+setTimeout
+scheduleFn @ notifyManager.ts:22
+flush @ notifyManager.ts:37
+batch @ notifyManager.ts:56
+dispatch_fn @ query.ts:617
+setData @ query.ts:218
+onSuccess @ query.ts:507
+resolve @ retryer.ts:107
+Promise.then
+run @ retryer.ts:159
+start @ retryer.ts:218
+fetch @ query.ts:540
+executeFetch_fn @ queryObserver.ts:346
+onSubscribe @ queryObserver.ts:108
+subscribe @ subscribable.ts:11
+(anonymous) @ useBaseQuery.ts:92
+subscribeToStore @ react-dom.development.js:16139
+commitHookEffectListMount @ react-dom.development.js:23189
+commitPassiveMountOnFiber @ react-dom.development.js:24965
+commitPassiveMountEffects_complete @ react-dom.development.js:24930
+commitPassiveMountEffects_begin @ react-dom.development.js:24917
+commitPassiveMountEffects @ react-dom.development.js:24905
+flushPassiveEffectsImpl @ react-dom.development.js:27078
+flushPassiveEffects @ react-dom.development.js:27023
+performSyncWorkOnRoot @ react-dom.development.js:26115
+flushSyncCallbacks @ react-dom.development.js:12042
+commitRootImpl @ react-dom.development.js:26998
+commitRoot @ react-dom.development.js:26721
+finishConcurrentRender @ react-dom.development.js:26020
+performConcurrentWorkOnRoot @ react-dom.development.js:25848
+workLoop @ scheduler.development.js:266
+flushWork @ scheduler.development.js:239
+performWorkUntilDeadline @ scheduler.development.js:533
+queryClient.ts:143 Cached data for /api/messages
+queryClient.ts:143 Cached data for /api/locations/25/saved
+queryClient.ts:143 Cached data for /api/locations/16/saved
+queryClient.ts:143 Cached data for /api/locations/15/saved
+queryClient.ts:143 Cached data for /api/locations/14/saved
+queryClient.ts:143 Cached data for /api/locations/12/saved
+queryClient.ts:143 Cached data for /api/bookings/host

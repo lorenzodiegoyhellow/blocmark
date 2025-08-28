@@ -1,0 +1,150 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Calendar blocked dates styling */
+.blocked-date {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  font-weight: bold;
+  opacity: 0.6;
+}
+
+.blocked-date:hover {
+  background-color: #fecaca !important;
+  opacity: 0.7;
+}
+
+/* Custom offer dialog calendar styles */
+.custom-offer-calendar [data-disabled] {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+}
+
+.custom-offer-calendar .booked-date {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+  font-weight: bold !important;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  body {
+    @apply font-sans antialiased bg-white text-foreground;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  
+  #root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar but maintain functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+
+  /* Admin dashboard tab styles */
+  .admin-tabs-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    min-height: auto;
+    padding: 0.25rem;
+  }
+  
+  .admin-tab-trigger {
+    white-space: nowrap;
+    min-width: fit-content;
+    flex-shrink: 0;
+  }
+}
+
+/* Custom button styling for search mode buttons */
+[data-active="true"].mantine-Button-root {
+  background-color: #f8f8f8;
+  border-color: #eaeaea;
+  color: #616161;
+}
+
+/* Subtle gray button active state */
+button[data-active="true"] {
+  background-color: #f8f8f8;
+  border-color: #eaeaea;
+  font-weight: 500;
+}
+
+/* Keyframe animations for host benefits section */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Blob animations for Secret Corners landing page */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}

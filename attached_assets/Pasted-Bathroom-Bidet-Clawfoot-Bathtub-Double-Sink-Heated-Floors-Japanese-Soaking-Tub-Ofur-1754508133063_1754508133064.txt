@@ -1,0 +1,327 @@
+Bathroom
+	•	Bidet
+	•	Clawfoot Bathtub
+	•	Double Sink
+	•	Heated Floors
+	•	Japanese Soaking Tub / Ofuro
+	•	Large Shower
+	•	Marble Bathroom
+	•	Modern Bathroom
+	•	Rain Shower
+	•	Sauna/Steam Room
+	•	Smart Toilet
+	•	Spa Bathtub
+	•	Wet Room
+Ceiling
+	•	Acoustic/Drop Ceiling Tiles
+	•	Cathedral Ceiling
+	•	Coffered Ceiling
+	•	Conventional Ceiling
+	•	Cove Ceiling
+	•	Exposed Beams
+	•	Exposed Ductwork
+	•	High Ceiling
+	•	Ornate Ceiling
+	•	Skylight
+	•	Suspended Ceiling
+	•	Tray Ceiling
+	•	Vaulted Ceiling
+	•	Wood Slat Ceiling
+Doors
+	•	Accordion/Folding Glass Wall
+	•	Barn Doors
+	•	Battened and Ledged Doors
+	•	Dutch Doors
+	•	French Doors
+	•	Glass Doors
+	•	Ornate Doors
+	•	Pocket Doors
+	•	Pivot Doors
+	•	Roller Garage Door
+	•	Screen Doors
+	•	Security Door
+	•	Sliding Doors
+	•	Stained Glass
+	•	Steel Doors
+	•	Tilt Garage Door
+	•	Wood Doors
+Driveway
+	•	Asphalt/Concrete Driveway
+	•	Brick Driveway
+	•	Circle Driveway
+	•	Cobblestone Driveway
+	•	Colored Driveway
+	•	EV Charging at Driveway
+	•	Gated Driveway
+	•	Gravel/Dirt Driveway
+	•	Long Driveway
+	•	Motor Court/Turnaround
+	•	Porte-Cochère
+	•	RV/Boat Parking
+	•	Short Driveway
+Elevator
+	•	Conventional Elevator
+	•	Dumbwaiter
+	•	Freight Elevator
+	•	Glass Elevator
+	•	Outdoor/Exterior Lift
+	•	Panoramic Elevator (360°)
+	•	Platform/Accessibility Lift
+	•	Residential/Private Lift
+	•	Scissor Lift
+	•	Two-Sided Elevator
+	•	Vehicle Elevator
+	•	Vintage Elevator
+Exterior
+	•	Aviary
+	•	Backyard
+	•	Balcony
+	•	Balustrade
+	•	Barn
+	•	BBQ Grill
+	•	Beach Access
+	•	Bridge
+	•	Carport
+	•	Cold Plunge/Outdoor Sauna
+	•	Columns
+	•	Courtyard
+	•	Dog Run
+	•	Exterior Shower
+	•	Front yard
+	•	Garage (Attached)
+	•	Garage (Detached)
+	•	Gates
+	•	Gazebo/Pergola
+	•	Greenhouse
+	•	Guest House
+	•	Helicopter Pad
+	•	Hills
+	•	Large Grounds
+	•	Outdoor Fireplace
+	•	Outdoor Kitchen
+	•	Playground/Swings
+	•	Rooftop
+	•	Solar Panels
+	•	Stable/Corral
+	•	Toolshed
+	•	Treehouse
+	•	Veranda
+	•	Walkway
+	•	White Picket Fence
+Fireplace
+	•	Bathroom Fireplace
+	•	Brick Fireplace
+	•	Electric Fireplace
+	•	Firepit
+	•	Fireplace With Mantle
+	•	Gas Fireplace
+	•	Large Fireplace
+	•	Marble Fireplace
+	•	Modern Fireplace
+	•	Rustic Fireplace
+	•	Stone Fireplace
+	•	Two-Sided/See-Through Fireplace
+	•	Wood-Burning Stove
+Floor
+	•	Carpet Floor
+	•	Checker Tiles Floor
+	•	Concrete Floor
+	•	Dance Floor
+	•	Dark Wood Floor
+	•	Epoxy Floor
+	•	Glass Floor
+	•	Inlaid/Patterns Floor
+	•	Light Wood/Whitewash Floor
+	•	Linoleum Floor
+	•	Marble Floor
+	•	Parquet/Herringbone Wood
+	•	Polished Concrete
+	•	Radiant/Heated Floor
+	•	Reclaimed Wood
+	•	Stone Floor
+	•	Terrazzo
+	•	Tiles Floor
+Garden/Yard
+	•	Desert Garden
+	•	Dirt Yard/No Grass
+	•	English Garden
+	•	Fruit & Vegetable Garden
+	•	Greenhouse
+	•	Japanese Garden
+	•	Large Yard
+	•	Lush/Manicured Yard
+	•	Mediterranean Garden
+	•	Orchard/Citrus Grove
+	•	Overgrown Garden
+	•	Rock Garden
+	•	Rose Garden
+	•	Topiary
+	•	Tropical Garden
+	•	Vineyard
+	•	Wildflower Meadow
+	•	Xeriscape/Native Plant Garden
+Interior
+	•	Atrium
+	•	Attic
+	•	Baby Room
+	•	Ballroom
+	•	Basement
+	•	Bookcase
+	•	Closet
+	•	Crown Molding
+	•	Dressing Room
+	•	Gameroom
+	•	Home Bar
+	•	Home Gym
+	•	Home Library
+	•	Home Office
+	•	Home Recording Studio
+	•	Home Theatre
+	•	In-Law/Guest Suite
+	•	Kid Room/Teenager Room
+	•	Laundry Room
+	•	Loft/Mezzanine
+	•	Meditation/Wellness Room
+	•	Mudroom
+	•	Open Floor Plan
+	•	Piano
+	•	Safe Room/Vault
+	•	Sunroom/Conservatory
+	•	Walk-in closet
+	•	Walk-In Pantry
+	•	Wine Cellar
+	•	Workshop
+Kitchen Type/Features
+	•	Breakfast Bar
+	•	Breakfast Nook
+	•	Bright Kitchen
+	•	Butler's Pantry
+	•	Chef's Kitchen
+	•	Country Kitchen
+	•	Dated/50's to 70's Kitchen
+	•	Double Oven
+	•	Glass Kitchen Cabinets
+	•	Granite Countertop
+	•	Kitchen Island
+	•	Open Kitchen
+	•	Pass-Through/Service Window
+	•	Scullery/Back Kitchen
+	•	Stainless Steel Kitchen
+	•	Walk-In Pantry
+	•	White Kitchen
+	•	Wine Fridge
+	•	Wood Kitchen Cabinets
+	•	Wood Kitchen Countertop
+Porch
+	•	Covered Porch
+	•	Enclosed/All-Season Porch
+	•	Front Porch
+	•	Lanai
+	•	Loggia
+	•	Patio
+	•	Porch Swing
+	•	Screened Porch
+	•	Wood Deck
+	•	Wrap-Around Porch
+Sports And Activity
+	•	Basketball Court
+	•	Baseball Field
+	•	Bowling alley
+	•	Boxing Ring
+	•	Dance
+	•	Dance/Yoga/Fitness
+	•	Equestrian
+	•	Football Field
+	•	Golf
+	•	Gun Range/Archery
+	•	Hockey
+	•	Indoor Rock Climbing
+	•	Outdoor Gym/Calisthenics
+	•	Pickleball Court
+	•	Pool table
+	•	Skate Ramp/Bowl
+	•	Soccer Field
+	•	Squash/Racquetball Court
+	•	Tennis Court
+	•	Track and Field
+	•	Volleyball
+	•	Weight Lifting
+Stairs
+	•	Cantilevered Stairs
+	•	Curved Stairs
+	•	Fire Escape
+	•	Floating Stairs
+	•	Grand/Bifurcated/Double Stairs
+	•	Hidden/Secret Staircase
+	•	Industrial Metal Stairs
+	•	Quarter/Half/Three-Quarter Turn Stairs
+	•	Ship Ladder/Loft Ladder
+	•	Spiral Stairs
+	•	Straight Stairs
+View
+	•	Canyon View
+	•	City Skyline View
+	•	City View
+	•	Desert View
+	•	Forest/Woodland View
+	•	Garden/Courtyard View
+	•	Hollywood Hills
+	•	Hollywood Sign
+	•	Mountain/Vista View
+	•	Ocean View
+	•	River/Creek View
+	•	Rooftop View
+	•	Valley View
+Walls
+	•	Acoustic/Sound-Absorbing Panels
+	•	Board-Formed Concrete
+	•	Brick Walls
+	•	Colored Walls
+	•	Concrete Walls
+	•	Corrugated Metal Walls
+	•	Glass Wall
+	•	Graffiti Wall
+	•	Living/Green Wall
+	•	Mirrored
+	•	Mural Wall
+	•	Raw Plaster/Stucco
+	•	Reclaimed Wood Slat Wall
+	•	Shiplap
+	•	Stone Walls
+	•	Texture Walls
+	•	Tiled Walls
+	•	Wainscoting
+	•	Wallpaper
+	•	White Walls
+	•	Whitewashed Walls
+	•	Wood-Paneled Walls
+Water Features
+	•	Cold Plunge
+	•	Fountain
+	•	Hot Tub/Jacuzzi
+	•	Infinity Pool
+	•	Koi Pond
+	•	Lake
+	•	Lap Pool
+	•	Pond/Stream/Creek
+	•	Reflecting Pool
+	•	Water Wall
+	•	Waterfall
+Windows
+	•	Arched Windows
+	•	Bay or Bow Windows
+	•	Clerestory Windows
+	•	Corner Windows
+	•	Curtain/Window Wall
+	•	Floor-to-Ceiling Windows
+	•	Folding/Accordion Glass Doors
+	•	Hinged/Casement Windows
+	•	One-Way Mirror
+	•	Picture/Stationary Windows
+	•	Sash/Up And Down/Hung Windows
+	•	Skylight
+	•	Slider Windows
+	•	Stained Glass Windows
+	•	Tilt-and-Turn Windows
+	•	Transom Window
+

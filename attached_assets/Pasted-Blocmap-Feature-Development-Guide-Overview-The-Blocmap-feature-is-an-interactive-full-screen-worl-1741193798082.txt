@@ -1,0 +1,105 @@
+Blocmap Feature - Development Guide
+Overview
+The Blocmap feature is an interactive, full-screen world map that displays unique, visually interesting public locations. Users can explore spots for photography, videography, or simply to visit. The map will be user-driven, allowing registered users to submit new locations, add comments, and upload images. All new locations require admin approval before appearing on the map.
+
+Technical Requirements
+Frontend
+	•	The frontend will use React (Next.js)
+	•	A full-screen interactive map will be implemented using Leaflet.js
+	•	The map will display user-submitted locations as markers
+	•	Clicking on a marker will show a popup with details, images, and comments
+	•	Users can submit new locations, which will be sent to the backend for approval
+	•	Registered users can comment on locations and upload additional images
+Backend
+	•	The backend will be built using Node.js and Express.js
+	•	A MongoDB database (MongoDB Atlas or Replit Database) will store location data
+	•	Users will submit locations, and admins must approve them before they go live
+	•	The backend will handle user authentication (e.g., Firebase Auth, NextAuth.js)
+	•	Users can add comments and images to approved locations
+
+Core Features & Functionality
+1. Full-Screen Interactive Map
+	•	The homepage of this feature will display a full-screen world map with interactive markers.
+	•	Users can zoom, pan, and search for locations using a search bar.
+	•	Clicking on a marker will show:
+	◦	Location name & description
+	◦	Category (e.g., Abandoned, Street Art, Sunset, Natural)
+	◦	User-uploaded images
+	◦	Comments from other users
+	◦	Option to add new images or comments (if registered)
+
+2. Adding a New Location
+	•	Users must be logged in to submit a new location.
+	•	Submission form will require:
+	◦	Location name
+	◦	Short description
+	◦	Category selection
+	◦	Latitude & longitude (manually entered or selected on the map)
+	◦	Image upload option
+	•	After submission:
+	◦	The location is stored in the database but remains pending approval.
+	◦	Admins can view, approve, or reject locations.
+	◦	Once approved, the location appears publicly on the map.
+
+3. Admin Approval System
+	•	Admins will have a dashboard showing all submitted locations.
+	•	They can approve or reject locations.
+	•	Approved locations become visible on the map.
+	•	Rejected locations are removed from the database.
+
+4. User Comments & Image Uploads
+	•	Each location page will have a comment section.
+	•	Logged-in users can:
+	◦	Post comments about the location.
+	◦	Upload additional images.
+	•	Admins can moderate comments and images if necessary.
+
+5. Search & Filter
+	•	Users can search for locations by name or category.
+	•	Categories may include:
+	◦	Abandoned Places
+	◦	Sunset Spots
+	◦	Street Art & Murals
+	◦	Hidden Natural Wonders
+	◦	Urban Photography Spots
+	•	A filter system will allow users to show only specific categories on the map.
+
+Technical Implementation Guide
+Frontend (React + Leaflet.js)
+	•	Create a full-screen map component using Leaflet.js.
+	•	Fetch approved locations from the backend and display them as markers.
+	•	Clicking a marker opens a popup with details, images, and comments.
+	•	Users can submit new locations via a form.
+	•	Use a modal or sidebar for the submission form.
+Backend (Node.js + Express + MongoDB)
+	•	Create a MongoDB schema for locations:
+	◦	Name, description, category, latitude, longitude, images, comments, and approval status.
+	•	Build API routes to:
+	◦	Fetch approved locations (GET /api/locations)
+	◦	Submit a new location (POST /api/locations)
+	◦	Approve/reject locations (admin-only)
+	◦	Add comments and images to locations
+	•	Implement user authentication for submissions and commenting.
+Admin Panel
+	•	Create an admin dashboard to view pending submissions.
+	•	Allow admins to approve/reject locations.
+	•	Admins can moderate comments and images.
+
+Deployment & Hosting
+	•	Deploy the backend to Replit or Vercel.
+	•	Deploy the frontend to Vercel or Netlify.
+	•	Use a MongoDB Atlas database for scalability.
+	•	If needed, use Cloudinary or Firebase Storage for image uploads.
+
+Future Enhancements
+	•	Add a "favorite" button so users can save locations.
+	•	Allow users to rate locations.
+	•	Implement a leaderboard for top contributors.
+	•	Integrate AI-powered recommendations based on user preferences.
+	•	Add a mobile-friendly UI for on-the-go exploration.
+
+Conclusion
+This feature will turn Blocmap into a community-driven discovery tool where creatives and adventurers can share and explore hidden gems worldwide. By integrating user submissions, social interactions, and admin moderation, this system will ensure quality content and engagement. 🚀
+
+Instructions for Replit
+Please generate the required React (Next.js) frontend, Node.js backend, and MongoDB database based on the above feature set. Use Leaflet.js for mapping, implement user authentication for submissions and comments, and set up an admin approval system for new locations.

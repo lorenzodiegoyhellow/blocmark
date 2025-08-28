@@ -1,62 +1,64 @@
-# 🏠 Blocmark
+# Travel Platform App
 
-A full-stack location sharing platform with AI-powered features, built with React, Node.js, and PostgreSQL.
+An advanced AI-powered travel and booking platform that creates immersive, personalized experiences through intelligent communication technologies.
 
-## ✨ Features
+## Setup Instructions
 
-- **Location Discovery**: Find and share amazing locations
-- **AI-Powered Analysis**: Get intelligent insights about locations
-- **Booking System**: Reserve spaces for events and activities
-- **Payment Integration**: Secure Stripe payment processing
-- **User Reviews**: Community-driven ratings and feedback
-- **Secret Corners**: Premium location access for subscribers
+### Prerequisites
 
-## 🚀 Tech Stack
+- Node.js 18+ installed
+- PostgreSQL database server
+- API keys for external services (Google Maps, OpenAI, Stripe)
 
-- **Frontend**: React + TypeScript + Vite
-- **Backend**: Node.js + Express + TypeScript
-- **Database**: PostgreSQL with Drizzle ORM
-- **AI**: OpenAI integration for location analysis
-- **Payments**: Stripe for secure transactions
-- **Maps**: Google Maps integration
-- **Email**: Postmark for transactional emails
+### Environment Setup
 
-## 📋 Prerequisites
+1. Clone the repository to your local machine
+2. Copy the `.env.example` file to a new file named `.env`:
+   ```
+   cp .env.example .env
+   ```
+3. Edit the `.env` file and fill in your actual values:
+   - Database connection details
+   - API keys for Google Maps, OpenAI, and Stripe
+   - Port configuration (optional, defaults to 5000)
 
-- Node.js 18+
-- PostgreSQL database
-- API keys for OpenAI, Stripe, Google Maps, and Postmark
+### Database Setup
 
-## 🔧 Local Development
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/lorenzodiegoyhellow/blocmark.git
-   cd blocmark
+1. Create a PostgreSQL database for the application
+2. Update the `DATABASE_URL` in your `.env` file to point to your database
+3. Run database migrations to set up the schema:
+   ```
+   npm run db:push
    ```
 
-2. **Install dependencies**
-   ```bash
+### Installation
+
+1. Install dependencies:
+   ```
    npm install
    ```
 
-3. **Set up environment variables**
-   ```bash
-   cp env.production.example .env.local
-   # Edit .env.local with your API keys
-   ```
+### Running the Application
 
-4. **Start the development server**
-   ```bash
+1. Start the development server:
+   ```
    npm run dev
    ```
+2. The application will be available at http://localhost:5000
 
-## 🚀 Deployment
+## Features
 
-This project is configured for deployment to AWS App Runner using GitHub Actions.
+- Comprehensive administrative tools with advanced messaging and booking management
+- User authentication and authorization
+- Location browsing and booking
+- Secret Corners feature for exclusive locations
+- Google Maps integration
+- Stripe payment processing
+- OpenAI-powered location analysis
 
-See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for detailed deployment instructions.
+## Notes
 
-## 📄 License
-
-MIT License - see [LICENSE](./LICENSE) for details.
+- The project uses TypeScript for both frontend and backend
+- Frontend: React with Shadcn UI components
+- Backend: Express.js with Drizzle ORM
+- Database: PostgreSQL

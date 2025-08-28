@@ -1,0 +1,826 @@
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Location, Review, User } from "@shared/schema";
+import { useParams, Link } from "wouter";
+import { 
+  Loader2, MapPin, Users, CalendarDays, Heart, LayoutPanelTop, 
+  Clock, MessageSquare, Share, ChevronLeft, ChevronRight, X,
+  Star, PenSquare, PartyPopper, Play, Info
+} from "lucide-react";
+import { AppLayout } from "@/components/layout/app-layout";
+import { useState } from "react";
+import { Separator } from "@/components/ui/separator";
+import { LocationMap } from "@/components/map/location-map";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogPortal } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ShareDialog } from "@/components/ui/share-dialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { cn } from "@/lib/utils";
+import { formatUsername, formatDate } from "@/lib/utils";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { MessageHostDialog } from "@/components/messages/message-host-dialog";
+
+function extractCityName(address: string) {
+  try {
+    // Handle empty or invalid addresses
+    if (!address || typeof address !== 'string') {
+      return 'Location';
+    }
+    
+    // Split by comma and clean up each part
+    const parts = address.split(',').map(part => part.trim());
+    
+    // For addresses with commas (standard format)
+    if (parts.length >= 2) {
+      // US address format: 123 Street, City, State ZIP, USA
+      if (parts.length >= 3) {
+        // City is often the second part in a comma-separated address
+        return parts[1];
+      }
+      
+      // For addresses with just two parts, like "Street, City"
+      return parts[parts.length - 1];
+    }
+    
+    // Handle special case for addresses without commas
+    // For street addresses without city information, return a generic location term
+    if (parts.length === 1) {
+      // Check for common street indicators that suggest this is just a street address
+      const streetIndicators = [' st', ' ave', ' blvd', ' road', ' street', ' avenue', ' boulevard', ' lane', ' drive', ' way'];
+      const lowercaseAddress = parts[0].toLowerCase();
+      
+      // If address contains street indicators, it's likely just a street address
+      if (streetIndicators.some(indicator => lowercaseAddress.includes(indicator))) {
+        return 'Location Area'; // Generic but informative
+      }
+      
+      // For non-street addresses with a single part, return the full text
+      return parts[0];
+    }
+    
+    return 'Location';
+  } catch (e) {
+    console.error('Error extracting city name:', e);
+    return 'Location';
+  }
+}
+
+function EnhancedLocationDetails() {
+  const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  
+  const [mainImageIndex, setMainImageIndex] = useState(0);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [showGallery, setShowGallery] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showMessageHost, setShowMessageHost] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('create');
+  
+  const { data: location, isLoading: locationLoading } = useQuery<Location>({
+    queryKey: [`/api/locations/${id}`],
+    staleTime: 0, // Don't use cached data
+    refetchOnMount: true, // Refetch data when component mounts
+  });
+
+  const { data: reviews, isLoading: reviewsLoading } = useQuery<Review[]>({
+    queryKey: [`/api/reviews/${id}`],
+  });
+
+  const { data: addOns = [], isLoading: addOnsLoading } = useQuery<any[]>({
+    queryKey: [`/api/locations/${id}/addons`],
+  });
+
+  const { data: hostUser, isLoading: hostLoading } = useQuery<User>({
+    queryKey: [`/api/users/${location?.ownerId}`],
+    enabled: !!location?.ownerId,
+  });
+
+  const { data: isSaved } = useQuery<boolean>({
+    queryKey: [`/api/locations/${id}/saved`],
+    enabled: !!user,
+  });
+
+  const toggleSaveMutation = useMutation({
+    mutationFn: async () => {
+      const method = isSaved ? "DELETE" : "POST";
+      const response = await apiRequest({
+        url: `/api/locations/${id}/save`,
+        method
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/locations/${id}/saved`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/saved-locations"] });
+
+      toast({
+        title: isSaved ? "Location removed" : "Location saved",
+        description: isSaved
+          ? "Location removed from your saved list"
+          : "Location added to your saved list",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update saved status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  if (locationLoading || reviewsLoading || addOnsLoading || hostLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin text-border" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!location) {
+    return (
+      <AppLayout>
+        <div className="container mx-auto px-4 py-8">
+          Location not found
+        </div>
+      </AppLayout>
+    );
+  }
+
+  const images = location.images && Array.isArray(location.images) && location.images.length > 0
+    ? location.images
+    : ['https://placehold.co/600x400?text=No+Image'];
+
+  const handlePrevImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setGalleryIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
+  };
+
+  const handleNextImage = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setGalleryIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
+  };
+
+  const handleImageClick = (index: number) => {
+    setGalleryIndex(index);
+    setShowGallery(true);
+  };
+
+  return (
+    <AppLayout>
+      {/* Hero Image Section */}
+      <div className="w-full">
+        <div className="container mx-auto px-4 py-8">
+          <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 h-[400px] md:h-[500px]">
+              <div
+                className="md:col-span-2 relative overflow-hidden cursor-pointer rounded-lg md:rounded-l-xl md:rounded-r-none"
+                onClick={() => handleImageClick(mainImageIndex)}
+              >
+                <img
+                  src={images[mainImageIndex]}
+                  alt={`${location.title} - Main Image`}
+                  className="object-cover w-full h-full"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+              </div>
+              <div className="hidden md:flex flex-col gap-2">
+                {images.slice(1, 4).map((image, index) => (
+                  <div
+                    key={index}
+                    className="relative h-[164px] overflow-hidden cursor-pointer rounded-r-xl"
+                    onClick={() => handleImageClick(index + 1)}
+                  >
+                    <img
+                      src={image}
+                      alt={`${location.title} - Image ${index + 2}`}
+                      className="object-cover w-full h-full"
+                    />
+                    <div className="absolute inset-0 bg-black/20" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="absolute bottom-4 right-4">
+              <Button
+                variant="secondary"
+                className="bg-white/90 hover:bg-white text-black font-medium rounded-lg"
+                size="sm"
+                onClick={() => handleImageClick(mainImageIndex)}
+              >
+                Show all photos
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-4 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+          {/* Left Column - Details */}
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2">{location.title}</h1>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="h-4 w-4" />
+                    <p>Approximate Location: {extractCityName(location.address)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative"
+                    onClick={() => setShowShareDialog(true)}
+                  >
+                    <Share className="h-6 w-6 text-muted-foreground" />
+                  </Button>
+                  
+                  {user && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative"
+                      onClick={() => toggleSaveMutation.mutate()}
+                      disabled={toggleSaveMutation.isPending}
+                    >
+                      <Heart
+                        className={cn("h-6 w-6 transition-colors", {
+                          "fill-destructive text-destructive": isSaved,
+                          "text-muted-foreground": !isSaved,
+                        })}
+                      />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Tabs */}
+              <div className="bg-card rounded-full shadow-sm flex mb-4">
+                {[
+                  { id: 'create', icon: <PenSquare className="h-4 w-4" />, label: 'Create' },
+                  { id: 'celebrate', icon: <PartyPopper className="h-4 w-4" />, label: 'Celebrate' },
+                  { id: 'play', icon: <Play className="h-4 w-4" />, label: 'Play' },
+                  { id: 'meet', icon: <Users className="h-4 w-4" />, label: 'Meet' }
+                ].map((tab) => (
+                  <Button
+                    key={tab.id}
+                    variant={selectedTab === tab.id ? "default" : "ghost"}
+                    className={`flex-1 gap-1 rounded-full transition-all text-sm ${
+                      selectedTab === tab.id 
+                        ? "bg-primary text-primary-foreground" 
+                        : "text-muted-foreground hover:text-foreground hover:bg-transparent"
+                    }`}
+                    size="sm"
+                    onClick={() => setSelectedTab(tab.id)}
+                  >
+                    {tab.icon}
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </Button>
+                ))}
+              </div>
+              
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-muted-foreground" />
+                  <span>Up to {location.maxCapacity} people</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="h-5 w-5 text-muted-foreground" />
+                  <span>{location.cancellationPolicy.charAt(0).toUpperCase() + location.cancellationPolicy.slice(1)} cancellation</span>
+                </div>
+                {location.imageTags && location.imageTags.length > 0 && (
+                  <div className="flex items-center gap-2 ml-auto">
+                    {location.imageTags.slice(0, 3).map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="capitalize">{String(tag)}</Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Quick Facts Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-primary/10 rounded-full p-3">
+                  <Clock className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Min booking length</p>
+                  <p className="font-semibold">{location.minHours || 1} hr minimum</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-primary/10 rounded-full p-3">
+                  <Users className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Cast & Crew</p>
+                  <p className="font-semibold">{location.maxCapacity} people</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-primary/10 rounded-full p-3">
+                  <LayoutPanelTop className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Square footage</p>
+                  <p className="font-semibold">{location.size} sq/ft</p>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-6">
+              <h2 className="text-2xl font-semibold">About this location</h2>
+              <p className="text-muted-foreground whitespace-pre-wrap">{location.description}</p>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-6">
+              <h2 className="text-2xl font-semibold">Features & Amenities</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {location.amenities.map((amenity) => (
+                  <div key={amenity} className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    <span>{amenity}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {addOns && addOns.length > 0 && (
+              <>
+                <Separator />
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-semibold">Additional Services</h2>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {addOns.map((addon) => (
+                      <div
+                        key={addon.id}
+                        className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                      >
+                        <span className="font-medium">{addon.name}</span>
+                        <span className="text-muted-foreground">${addon.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            <Separator />
+            
+            {/* Similar Listings Section */}
+            <div className="space-y-6">
+              <h2 className="text-2xl font-semibold">Similar listings in the area</h2>
+              <div className="space-y-6">
+                {[...Array(3)].map((_, index) => (
+                  <div key={index} className="flex border-b pb-6">
+                    <div className="relative w-32 h-24 rounded-lg overflow-hidden flex-shrink-0">
+                      <img 
+                        src={images[index % images.length]} 
+                        alt="Similar location" 
+                        className="object-cover w-full h-full"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="absolute top-1 right-1 p-1 h-7 w-7 rounded-full bg-white/70 hover:bg-white/90"
+                      >
+                        <Heart className="h-4 w-4 text-gray-700" />
+                      </Button>
+                    </div>
+                    <div className="ml-4 flex-1">
+                      <div className="flex justify-between">
+                        <h3 className="font-medium">{
+                          [
+                            "Rustic Studio Space",
+                            "Modern Office Suite",
+                            "Vintage Workshop"
+                          ][index]
+                        }</h3>
+                        <div className="flex items-center gap-1">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span className="font-medium">{(4.8 + index * 0.1).toFixed(1)}</span>
+                          <span className="text-muted-foreground text-xs">({12 + index * 5})</span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{location.maxCapacity} guests</p>
+                      <p className="text-sm text-muted-foreground">{extractCityName(location.address)}</p>
+                      <p className="text-sm text-muted-foreground">Responds within a few hours</p>
+                      <p className="font-medium mt-1">${location.price}/hr</p>
+                    </div>
+                  </div>
+                ))}
+                <Button variant="ghost" className="flex items-center gap-1 text-primary">
+                  Show more
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            {/* Questions and Location Rules */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-6">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-semibold">Questions</h2>
+                
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-medium mb-1">What's the maximum attendees I can have at this location?</h3>
+                    <p className="text-muted-foreground">{location.title} allows {location.maxCapacity} attendees on location</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-medium mb-1">What types of activities are allowed at this location?</h3>
+                    <p className="text-muted-foreground">{location.title} allows production</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-medium mb-1">How many square feet is the location?</h3>
+                    <p className="text-muted-foreground">{location.title} is {location.size} sq/ft</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                <h2 className="text-2xl font-semibold">Location Rules</h2>
+                
+                <ul className="space-y-4">
+                  {[
+                    { rule: 'Adult filming', allowed: false },
+                    { rule: 'Alcohol', allowed: false },
+                    { rule: 'Cooking', allowed: false },
+                    { rule: 'Pets', allowed: false },
+                  ].map((item, index) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <div className="h-5 w-5 flex-shrink-0">
+                        {item.allowed ? (
+                          <Check className="h-5 w-5 text-primary" />
+                        ) : (
+                          <X className="h-5 w-5 text-destructive/70" strokeWidth={3} />
+                        )}
+                      </div>
+                      <span className={item.allowed ? "" : "line-through text-muted-foreground"}>
+                        {item.rule}
+                      </span>
+                    </li>
+                  ))}
+                  
+                  <li className="flex items-start gap-2 pt-1">
+                    <div className="h-5 w-5 flex-shrink-0 pt-0.5">
+                      <Check className="h-5 w-5 text-primary" />
+                    </div>
+                    <span>
+                      All props must be returned to the prop room after use
+                    </span>
+                  </li>
+                </ul>
+                
+                <div className="space-y-4 pt-2">
+                  <h3 className="font-medium">Damage Policies:</h3>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-2">
+                      <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-2"></div>
+                      <p className="text-sm">Any damage will result in a minimum $200 fee or at cost repair, whichever is more</p>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-2"></div>
+                      <p className="text-sm">Any indication of smoking on site will result in a $200 fine</p>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-2"></div>
+                      <p className="text-sm">Any trash or debris left by your shoot including water bottles, chip bags etc. will result in a $150 fine</p>
+                    </li>
+                  </ul>
+                  
+                  <div className="pt-2">
+                    <Button variant="outline" className="w-auto">
+                      See all location rules
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div className="space-y-6">
+              <h2 className="text-2xl font-semibold">Location</h2>
+              <LocationMap address={location.address} className="h-[400px] w-full rounded-lg shadow-sm" />
+              <p className="text-muted-foreground text-sm mt-2">
+                Exact location will be provided after booking
+              </p>
+            </div>
+
+            {/* Reviews Section - Display only if reviews exist */}
+            {reviews && reviews.length > 0 && (
+              <>
+                <Separator />
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-semibold">Reviews</h2>
+                    <div className="flex items-center gap-1">
+                      <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                      <span className="font-semibold">
+                        {reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length} 
+                        <span className="text-muted-foreground font-normal">
+                          ({reviews.length})
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-6">
+                    {reviews.slice(0, 3).map((review) => (
+                      <Card key={review.id} className="overflow-hidden">
+                        <CardContent className="p-6">
+                          <div className="flex justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback>
+                                  {"U"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">User</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatDate(review.createdAt ? review.createdAt.toString() : new Date().toISOString())}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center">
+                              <div className="flex">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-4 w-4 ${
+                                      i < review.rating
+                                        ? "fill-yellow-400 text-yellow-400"
+                                        : "text-gray-300"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-muted-foreground">{review.comment}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                  
+                  {reviews.length > 3 && (
+                    <div className="flex justify-center">
+                      <Button variant="outline">
+                        Show all {reviews.length} reviews
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* No Reviews Message */}
+            {(!reviews || reviews.length === 0) && (
+              <>
+                <Separator />
+                <div className="py-8 flex flex-col items-center justify-center text-center space-y-3">
+                  <div className="bg-primary/10 p-3 rounded-full">
+                    <Star className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-lg">No reviews yet</h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Be the first to leave a review for this amazing location
+                  </p>
+                </div>
+              </>
+            )}
+
+          </div>
+
+          {/* Right Column - Booking Section */}
+          <div>
+            <div className="sticky top-24">
+              <Card className="rounded-xl shadow-md border-border">
+                <CardContent className="p-6 space-y-6">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="text-2xl font-bold">${location.price}</span>
+                      <span className="text-muted-foreground"> / hour</span>
+                    </div>
+                    {reviews && reviews.length > 0 && (
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">
+                          {(reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <Tabs defaultValue="date">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="date">Dates</TabsTrigger>
+                      <TabsTrigger value="info">Info</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="date" className="space-y-4 pt-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Check-in</label>
+                          <div className="border rounded-md p-3 text-sm">
+                            <p>Select date</p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Check-out</label>
+                          <div className="border rounded-md p-3 text-sm">
+                            <p>Select date</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Guests</label>
+                        <div className="border rounded-md p-3 text-sm flex justify-between items-center">
+                          <p>1 guest</p>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="info" className="pt-4">
+                      <div className="space-y-4">
+                        <div className="flex justify-between">
+                          <span>Minimum booking</span>
+                          <span>{location.minHours || 1} hour</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Cancellation</span>
+                          <span className="capitalize">{location.cancellationPolicy}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Capacity</span>
+                          <span>Up to {location.maxCapacity} people</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Size</span>
+                          <span>{location.size} sq/ft</span>
+                        </div>
+                        <div className="mt-4 p-3 bg-primary/5 rounded-lg flex gap-2 text-sm">
+                          <Info className="h-5 w-5 text-primary shrink-0" />
+                          <p>Exact address and access details will be provided after booking is confirmed</p>
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                  
+                  <div className="space-y-4 pt-2">
+                    <Separator />
+                    <div className="flex justify-between font-semibold">
+                      <span>Total</span>
+                      <span>${location.price} / hour</span>
+                    </div>
+                  </div>
+
+                  <Button className="w-full" size="lg">
+                    Reserve
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Host Information */}
+              {hostUser && (
+                <Card className="mt-6 rounded-xl shadow-sm">
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12">
+                        <AvatarFallback>{hostUser.username?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold text-lg">Hosted by {formatUsername(hostUser.username || '')}</h3>
+                        <p className="text-sm text-muted-foreground">Host since 2025</p>
+                      </div>
+                    </div>
+                    
+                    {user && user.id !== hostUser.id && (
+                      <Button 
+                        variant="outline" 
+                        className="w-full flex items-center justify-center gap-2"
+                        onClick={() => setShowMessageHost(true)}
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                        Message Host
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Custom Gallery Modal */}
+      <Dialog open={showGallery} onOpenChange={setShowGallery}>
+        <DialogPortal>
+          {/* Custom overlay without animations */}
+          <DialogPrimitive.Overlay
+            className="fixed inset-0 z-[10000] bg-black/80"
+          />
+          <DialogPrimitive.Content 
+            className="fixed left-[50%] top-[50%] z-[10001] max-w-[90vw] max-h-[90vh] h-[90vh] w-full -translate-x-1/2 -translate-y-1/2 p-0 border-none bg-white shadow-xl"
+          >
+            <div className="relative w-full h-full flex items-center justify-center">
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute top-4 right-4 bg-white/80 hover:bg-white shadow-sm z-50 rounded-full"
+                onClick={() => setShowGallery(false)}
+              >
+                <X className="h-5 w-5 text-gray-700" />
+              </Button>
+
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute left-8 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-sm z-50 h-10 w-10 rounded-full"
+                onClick={handlePrevImage}
+              >
+                <ChevronLeft className="h-6 w-6 text-gray-700" />
+              </Button>
+
+              <div className="w-full h-full flex items-center justify-center p-8">
+                <img
+                  src={images[galleryIndex]}
+                  alt={`${location.title} - Gallery Image ${galleryIndex + 1}`}
+                  className="max-w-full max-h-full object-contain rounded-md shadow-lg"
+                  style={{
+                    width: 'auto',
+                    height: 'auto',
+                    maxWidth: 'calc(90vw - 8rem)',
+                    maxHeight: 'calc(90vh - 8rem)'
+                  }}
+                />
+              </div>
+
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute right-8 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-sm z-50 h-10 w-10 rounded-full"
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="h-6 w-6 text-gray-700" />
+              </Button>
+
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/80 px-4 py-1.5 rounded-full shadow-sm text-gray-700 text-sm font-medium">
+                {galleryIndex + 1} / {images.length}
+              </div>
+            </div>
+          </DialogPrimitive.Content>
+        </DialogPortal>
+      </Dialog>
+
+      {/* Share Dialog */}
+      <ShareDialog 
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+        title={`Check out ${location.title}`}
+        url={window.location.href}
+        text={`Check out this amazing location: `}
+      />
+
+      {/* Message Host Dialog */}
+      {hostUser && (
+        <MessageHostDialog 
+          open={showMessageHost}
+          onOpenChange={setShowMessageHost}
+          hostId={hostUser.id}
+          hostName={formatUsername(hostUser.username || '')}
+          hostImage={undefined}
+          locationId={location.id}
+          locationTitle={location.title}
+        />
+      )}
+    </AppLayout>
+  );
+}
+
+export default EnhancedLocationDetails;
