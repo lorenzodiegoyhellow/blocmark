@@ -89,36 +89,50 @@ export async function setupAuth(app: Express) {
 
 
   app.post("/api/login", (req, res, next) => {
-    console.log("Login request received:", req.body);
+    console.log("🔍 ===== LOGIN START =====");
+    console.log("🔍 Login request received:", req.body);
     
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", async (err: any, user: any, info: any) => {
       if (err) {
-        console.error("Authentication error:", err);
+        console.error("🔍 Authentication error:", err);
         return next(err);
       }
       
       if (!user) {
-        console.log("Authentication failed:", info);
+        console.log("🔍 Authentication failed:", info);
         return res.status(401).json({ 
           success: false, 
           message: info?.message || "Invalid username or password" 
         });
       }
       
-      req.login(user, async (err) => {
+      console.log("🔍 User authenticated, attempting login...");
+      
+      req.login(user, async (err: any) => {
         if (err) {
-          console.error("Login error:", err);
+          console.error("🔍 Login error:", err);
           return next(err);
         }
         
-        // Update last login IP and timestamp
-        const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
-        await storage.updateUser(user.id, {
-          lastLoginIp: clientIp,
-          lastLoginAt: new Date()
-        });
+        try {
+          // Update last login IP and timestamp
+          const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
+          console.log("🔍 Updating user login info...");
+          
+          await storage.updateUser(user.id, {
+            lastLoginIp: clientIp,
+            lastLoginAt: new Date()
+          });
+          
+          console.log("🔍 User login info updated successfully");
+        } catch (updateError: any) {
+          console.error("🔍 Failed to update user login info:", updateError);
+          // Don't fail the login if this update fails
+        }
         
-        console.log("User authenticated successfully:", user.username);
+        console.log("🔍 User authenticated successfully:", user.username);
+        console.log("🔍 ===== LOGIN SUCCESS =====");
+        
         return res.status(200).json({ 
           success: true, 
           user: req.user 
