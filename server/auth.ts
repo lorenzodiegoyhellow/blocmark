@@ -91,6 +91,20 @@ export function setupAuth(app: Express) {
         hasPassword: !!req.body.password 
       });
 
+      // Test database connection first
+      try {
+        console.log("Testing database connection...");
+        const testResult = await storage.executeRawQuery("SELECT 1 as test");
+        console.log("Database connection test result:", testResult);
+      } catch (dbError) {
+        console.error("Database connection test failed:", dbError);
+        return res.status(500).json({ 
+          success: false, 
+          message: "Database connection failed. Please try again later.",
+          error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+        });
+      }
+
       // Validate required fields
       if (!req.body.username || !req.body.password) {
         console.log("Missing required fields");
@@ -100,6 +114,7 @@ export function setupAuth(app: Express) {
         });
       }
 
+      console.log("Checking if username exists...");
       const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
         console.log("Username already exists:", req.body.username);
@@ -110,10 +125,12 @@ export function setupAuth(app: Express) {
       }
 
       // Hash password
+      console.log("Hashing password...");
       const hashedPassword = await hashPassword(req.body.password);
       console.log("Password hashed successfully");
 
       // Create user
+      console.log("Creating user in database...");
       const user = await storage.createUser({
         ...req.body,
         password: hashedPassword,
@@ -192,6 +209,27 @@ export function setupAuth(app: Express) {
   app.get("/api/user", (req, res) => {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
+  });
+
+  // Database health check endpoint
+  app.get("/api/health/db", async (req, res) => {
+    try {
+      console.log("Database health check requested");
+      const testResult = await storage.executeRawQuery("SELECT 1 as test");
+      console.log("Database health check result:", testResult);
+      res.json({ 
+        status: "healthy", 
+        database: "connected",
+        result: testResult 
+      });
+    } catch (error) {
+      console.error("Database health check failed:", error);
+      res.status(500).json({ 
+        status: "unhealthy", 
+        database: "disconnected",
+        error: error.message 
+      });
+    }
   });
 
   // Setup OAuth strategies
