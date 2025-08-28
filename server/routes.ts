@@ -2,8 +2,25 @@ import express, { Application, Express } from "express";
 import { ensureAuthenticated } from "./middleware/auth";
 import { setupAuth, hashPassword } from "./auth"; // Import hashPassword
 import passport from "passport";
+import session from "express-session";
 
 export function setupRoutes(app: Express) {
+  // Add essential session middleware FIRST (before any routes that need it)
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
+
+  // Initialize Passport.js
+  app.use(passport.initialize());
+  app.use(passport.session());
+
   // Health check endpoints
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
