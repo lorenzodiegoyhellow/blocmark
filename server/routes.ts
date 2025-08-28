@@ -60,12 +60,12 @@ export function setupRoutes(app: Express) {
     res.json({ message: "This is a protected route", user: req.user });
   });
 
-  // Setup auth routes
+  // Setup auth routes FIRST (this sets up Passport.js and req.login)
   setupAuth(app).catch(error => {
     console.error("🔍 Failed to setup auth routes:", error);
   });
 
-  // Enhanced registration endpoint (moved here to ensure it always works)
+  // Enhanced registration endpoint (defined AFTER setupAuth so req.login is available)
   app.post("/api/register", async (req, res, next) => {
     try {
       console.log("🔍 ===== REGISTRATION START =====");
@@ -89,7 +89,7 @@ export function setupRoutes(app: Express) {
         console.log("🔍 Testing database connection...");
         const testResult = await storage.executeRawQuery("SELECT 1 as test");
         console.log("🔍 Database connection test result:", testResult);
-      } catch (dbError) {
+      } catch (dbError: any) {
         console.error("🔍 Database connection test failed:", dbError);
         return res.status(500).json({ 
           success: false, 
@@ -142,25 +142,43 @@ export function setupRoutes(app: Express) {
       console.log("🔍 User ID:", user.id);
 
       console.log("🔍 User created successfully, attempting login...");
-      req.login(user, (err) => {
-        if (err) {
-          console.error("🔍 Login error after registration:", err);
-          return next(err);
-        }
-        console.log("🔍 Login successful, sending response...");
+      
+      // Check if req.login is available (Passport.js should be set up by now)
+      if (typeof req.login === 'function') {
+        req.login(user, (err) => {
+          if (err) {
+            console.error("🔍 Login error after registration:", err);
+            return next(err);
+          }
+          console.log("🔍 Login successful, sending response...");
+          const responseData = {
+            success: true,
+            user: user,
+            message: "Account created successfully",
+            id: user.id,
+            username: user.username
+          };
+          console.log("🔍 Sending response:", JSON.stringify(responseData, null, 2));
+          console.log("🔍 Response status: 201");
+          res.status(201).json(responseData);
+          console.log("🔍 ===== REGISTRATION SUCCESS =====");
+        });
+      } else {
+        // Fallback if req.login is not available
+        console.log("🔍 req.login not available, sending response without login...");
         const responseData = {
           success: true,
           user: user,
-          message: "Account created successfully",
+          message: "Account created successfully. Please log in.",
           id: user.id,
           username: user.username
         };
         console.log("🔍 Sending response:", JSON.stringify(responseData, null, 2));
         console.log("🔍 Response status: 201");
         res.status(201).json(responseData);
-        console.log("🔍 ===== REGISTRATION SUCCESS =====");
-      });
-    } catch (error) {
+        console.log("🔍 ===== REGISTRATION SUCCESS (NO LOGIN) =====");
+      }
+    } catch (error: any) {
       console.error("🔍 ===== REGISTRATION ERROR =====");
       console.error("🔍 Error details:", error);
       console.error("🔍 Error message:", error.message);
