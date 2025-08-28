@@ -377,6 +377,13 @@ export interface IStorage {
   deleteExpiredEmailVerificationTokens(): Promise<void>;
   
   sessionStore: session.Store;
+
+  // Dashboard API functions
+  getBookingsByUserId(userId: number): Promise<Booking[]>;
+  getBookingsByHostId(hostId: number): Promise<Booking[]>;
+  getMessagesByUserId(userId: number): Promise<Message[]>;
+  getNotificationsByUserId(userId: number): Promise<Notification[]>;
+  getLocationsByOwnerId(ownerId: number): Promise<Location[]>;
 }
 
 export class DatabaseStorage implements IStorage {
