@@ -12,7 +12,7 @@ export function setupRoutes(app: Application) {
     try {
       console.log("🔍 Database health check requested");
       // Import storage dynamically to avoid circular dependencies
-      const { storage } = await import("./storage.js");
+      const { storage } = await import("./storage");
       const testResult = await storage.executeRawQuery("SELECT 1 as test");
       console.log("🔍 Database health check result:", testResult);
       res.json({ 
