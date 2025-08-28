@@ -72,6 +72,8 @@ export async function setupVite(app: Express, server: Server) {
 
 export function serveStatic(app: Express) {
   const distPath = path.resolve(__dirname, "public");
+  const attachedAssetsPath = path.resolve(__dirname, "..", "attached_assets");
+  const clientAssetsPath = path.resolve(__dirname, "..", "client", "public", "assets");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
@@ -79,7 +81,18 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // Serve the built React app
   app.use(express.static(distPath));
+  
+  // Serve attached assets (images, etc.)
+  if (fs.existsSync(attachedAssetsPath)) {
+    app.use("/attached_assets", express.static(attachedAssetsPath));
+  }
+  
+  // Serve client assets (logos, etc.)
+  if (fs.existsSync(clientAssetsPath)) {
+    app.use("/assets", express.static(clientAssetsPath));
+  }
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
