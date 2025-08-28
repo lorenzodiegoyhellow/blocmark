@@ -1,9 +1,7 @@
-import pg from 'pg';
+import { Pool } from '@neondatabase/serverless';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-const { Pool } = pg;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -16,12 +14,7 @@ async function runMigrations() {
   }
 
   console.log('Connecting to database...');
-  const pool = new Pool({
-    connectionString: sql_url,
-    ssl: {
-      rejectUnauthorized: false
-    }
-  });
+  const pool = new Pool({ connectionString: sql_url });
 
   try {
     // Check if migrations table exists

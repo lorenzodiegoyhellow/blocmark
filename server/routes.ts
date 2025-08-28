@@ -1,34 +1,14 @@
-import express, { Application } from "express";
+import express, { Application, Express } from "express";
 import { ensureAuthenticated } from "./middleware/auth";
 import { setupAuth } from "./auth";
 
-export function setupRoutes(app: Application) {
+export function setupRoutes(app: Express) {
   // Health check endpoints
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok", timestamp: new Date().toISOString() });
   });
 
-  app.get("/api/health/db", async (req, res) => {
-    try {
-      console.log("🔍 Database health check requested");
-      // Import storage dynamically to avoid circular dependencies
-      const { storage } = await import("./storage");
-      const testResult = await storage.executeRawQuery("SELECT 1 as test");
-      console.log("🔍 Database health check result:", testResult);
-      res.json({ 
-        status: "healthy", 
-        database: "connected",
-        result: testResult 
-      });
-    } catch (error: any) {
-      console.error("🔍 Database health check failed:", error);
-      res.status(500).json({ 
-        status: "unhealthy", 
-        database: "disconnected",
-        error: error.message 
-      });
-    }
-  });
+
 
   app.get("/api/test", (req, res) => {
     res.json({ message: "API is working!" });
