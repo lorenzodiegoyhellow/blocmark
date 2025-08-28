@@ -11,7 +11,7 @@ const csrfLogger = winston.createLogger({
   ),
   defaultMeta: { service: 'csrf-service' },
   transports: [
-    new winston.transports.File({ filename: 'logs/security.log' }),
+    // Only use console transport in production (AWS App Runner)
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
@@ -79,8 +79,8 @@ export function setupCsrf(app: Express) {
       return next();
     }
     
-    // For development mode or Replit environment, disable CSRF to eliminate configuration issues
-    if (process.env.NODE_ENV !== 'production' || process.env.REPL_ID) {
+    // For development mode, Replit environment, or AWS App Runner, disable CSRF to eliminate configuration issues
+    if (process.env.NODE_ENV !== 'production' || process.env.REPL_ID || process.env.AWS_EXECUTION_ENV) {
       return next();
     }
     
