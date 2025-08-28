@@ -152,48 +152,45 @@ export function setupRoutes(app: Express) {
   app.post("/api/register", async (req, res, next) => {
     try {
       console.log("🔍 ===== REGISTRATION START =====");
-      console.log("🔍 Request body:", JSON.stringify(req.body, null, 2));
-      console.log("🔍 Request headers:", JSON.stringify(req.headers, null, 2));
-      console.log("🔍 Registration request received:", { 
-        username: req.body.username, 
-        email: req.body.email,
-        hasPassword: !!req.body.password,
+      console.log("🔍 Request body:", req.body);
+      console.log("🔍 Request headers:", req.headers);
+
+      const { username, password, email, phoneNumber, termsAccepted } = req.body;
+
+      console.log("🔍 Registration request received:", {
+        username,
+        email,
+        hasPassword: !!password,
         bodyKeys: Object.keys(req.body)
       });
 
-      // Ensure we always send JSON responses
-      res.setHeader('Content-Type', 'application/json');
-
-      // Import storage dynamically to avoid circular dependencies
-      const { storage } = await import("./storage");
-
       // Test database connection first
+      console.log("🔍 Testing database connection...");
       try {
-        console.log("🔍 Testing database connection...");
-        const testResult = await storage.executeRawQuery("SELECT 1 as test");
-        console.log("🔍 Database connection test result:", testResult);
+        const { storage } = await import("./storage");
+        const dbTest = await storage.db.execute("SELECT 1 as test");
+        console.log("🔍 Database connection test result:", dbTest);
       } catch (dbError: any) {
         console.error("🔍 Database connection test failed:", dbError);
         return res.status(500).json({ 
           success: false, 
-          message: "Database connection failed. Please try again later.",
-          error: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+          message: "Database connection failed" 
         });
       }
 
-      // Validate required fields
-      if (!req.body.username || !req.body.password) {
-        console.log("🔍 Missing required fields");
+      // Validate input
+      if (!username || !password || !email || !termsAccepted) {
         return res.status(400).json({ 
           success: false, 
-          message: "Username and password are required" 
+          message: "Missing required fields" 
         });
       }
 
+      // Check if username already exists
       console.log("🔍 Checking if username exists...");
-      const existingUser = await storage.getUserByUsername(req.body.username);
+      const { storage } = await import("./storage");
+      const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
-        console.log("🔍 Username already exists:", req.body.username);
         return res.status(400).json({ 
           success: false, 
           message: "Username already exists" 
@@ -202,33 +199,30 @@ export function setupRoutes(app: Express) {
 
       // Hash password
       console.log("🔍 Hashing password...");
-      const { hashPassword } = await import("./auth");
-      const hashedPassword = await hashPassword(req.body.password);
+      const hashedPassword = await hashPassword(password);
       console.log("🔍 Password hashed successfully");
 
       // Create user
       console.log("🔍 Creating user in database...");
-      console.log("🔍 User data to insert:", {
-        username: req.body.username,
-        password: hashedPassword ? "***HASHED***" : "MISSING",
-        email: req.body.email,
-        roles: ["owner", "client"]
-      });
-      
-      const user = await storage.createUser({
-        ...req.body,
+      const userData = {
+        username,
         password: hashedPassword,
-        roles: ["owner", "client"], // Automatically assign both roles
+        email,
+        roles: ['owner', 'client']
+      };
+      console.log("🔍 User data to insert:", {
+        ...userData,
+        password: '***HASHED***'
       });
 
+      const user = await storage.createUser(userData);
       console.log("🔍 User created successfully:", user);
       console.log("🔍 User ID:", user.id);
 
       console.log("🔍 User created successfully, attempting login...");
-      
       // Check if req.login is available (Passport.js should be set up by now)
       if (typeof req.login === 'function') {
-        req.login(user, (err) => {
+        req.login(user, (err: any) => { // Explicitly type err
           if (err) {
             console.error("🔍 Login error after registration:", err);
             return next(err);
@@ -261,21 +255,164 @@ export function setupRoutes(app: Express) {
         res.status(201).json(responseData);
         console.log("🔍 ===== REGISTRATION SUCCESS (NO LOGIN) =====");
       }
-    } catch (error: any) {
+    } catch (error: any) { // Explicitly type error
       console.error("🔍 ===== REGISTRATION ERROR =====");
       console.error("🔍 Error details:", error);
       console.error("🔍 Error message:", error.message);
       console.error("🔍 Error stack:", error.stack);
-      
+
       const errorResponse = {
-        success: false, 
+        success: false,
         message: "Registration failed. Please try again.",
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
       };
-      
+
       console.log("🔍 Sending error response:", JSON.stringify(errorResponse, null, 2));
       res.status(500).json(errorResponse);
       console.log("🔍 ===== REGISTRATION ERROR END =====");
+    }
+  });
+
+  // Add missing booking routes to fix dashboard
+  app.get("/api/bookings/user", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "User not authenticated" 
+        });
+      }
+
+      const bookings = await storage.getBookingsByUserId(userId);
+      res.json(bookings || []);
+    } catch (error: any) {
+      console.error("Error fetching user bookings:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch bookings" 
+      });
+    }
+  });
+
+  app.get("/api/bookings/host", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "User not authenticated" 
+        });
+      }
+
+      const bookings = await storage.getBookingsByHostId(userId);
+      res.json(bookings || []);
+    } catch (error: any) {
+      console.error("Error fetching host bookings:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch host bookings" 
+      });
+    }
+  });
+
+  // Add missing messages route
+  app.get("/api/messages", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "User not authenticated" 
+        });
+      }
+
+      const messages = await storage.getMessagesByUserId(userId);
+      res.json(messages || []);
+    } catch (error: any) {
+      console.error("Error fetching messages:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch messages" 
+      });
+    }
+  });
+
+  // Add missing notifications route
+  app.get("/api/notifications", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "User not authenticated" 
+        });
+      }
+
+      const notifications = await storage.getNotificationsByUserId(userId);
+      res.json(notifications || []);
+    } catch (error: any) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch notifications" 
+      });
+    }
+  });
+
+  // Add missing notifications unread count route
+  app.get("/api/notifications/unread/count", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "User not authenticated" 
+        });
+      }
+
+      const count = await storage.getUnreadNotificationsCount(userId);
+      res.json({ count: count || 0 });
+    } catch (error: any) {
+      console.error("Error fetching unread notifications count:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch unread count" 
+      });
+    }
+  });
+
+  // Add missing locations owner route
+  app.get("/api/locations/owner", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "User not authenticated" 
+        });
+      }
+
+      const locations = await storage.getLocationsByOwnerId(userId);
+      res.json(locations || []);
+    } catch (error: any) {
+      console.error("Error fetching owner locations:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch locations" 
+      });
     }
   });
 }
