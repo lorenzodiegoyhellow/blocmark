@@ -4,7 +4,6 @@ import { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
 import { setupOAuth } from "./oauth";
 
@@ -29,19 +28,23 @@ export async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
-export function setupAuth(app: Express) {
-  const sessionSettings: session.SessionOptions = {
-    secret: process.env.REPL_ID || 'blocmark-dev-secret',
-    resave: false,
-    saveUninitialized: false,
-    store: storage.sessionStore,
-    cookie: {
-      httpOnly: true,
-      secure: app.get('env') === 'production', // Only use secure cookies in production
-      sameSite: 'lax', // Helps prevent CSRF attacks
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-  };
+export async function setupAuth(app: Express) {
+  try {
+    // Dynamically import storage to avoid startup errors
+    const { storage } = await import("./storage");
+    
+    const sessionSettings: session.SessionOptions = {
+      secret: process.env.REPL_ID || 'blocmark-dev-secret',
+      resave: false,
+      saveUninitialized: false,
+      store: storage.sessionStore,
+      cookie: {
+        httpOnly: true,
+        secure: app.get('env') === 'production', // Only use secure cookies in production
+        sameSite: 'lax', // Helps prevent CSRF attacks
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      }
+    };
 
   if (app.get("env") === "production") {
     app.set("trust proxy", 1);
@@ -254,6 +257,11 @@ export function setupAuth(app: Express) {
 
   // Setup OAuth strategies
   setupOAuth(app);
+  
+  } catch (error) {
+    console.error("🔍 Failed to setup auth:", error);
+    // Continue without auth setup to prevent app crash
+  }
 }
 
 // Authentication middleware

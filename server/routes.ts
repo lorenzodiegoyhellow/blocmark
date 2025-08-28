@@ -39,5 +39,7 @@ export function setupRoutes(app: Application) {
   });
 
   // Setup auth routes
-  setupAuth(app);
+  setupAuth(app).catch(error => {
+    console.error("🔍 Failed to setup auth routes:", error);
+  });
 }
