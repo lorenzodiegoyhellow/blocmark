@@ -88,10 +88,14 @@ export async function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
+      console.log("🔍 ===== REGISTRATION START =====");
+      console.log("🔍 Request body:", JSON.stringify(req.body, null, 2));
+      console.log("🔍 Request headers:", JSON.stringify(req.headers, null, 2));
       console.log("🔍 Registration request received:", { 
         username: req.body.username, 
         email: req.body.email,
-        hasPassword: !!req.body.password 
+        hasPassword: !!req.body.password,
+        bodyKeys: Object.keys(req.body)
       });
 
       // Ensure we always send JSON responses
@@ -136,14 +140,22 @@ export async function setupAuth(app: Express) {
       console.log("Password hashed successfully");
 
       // Create user
-      console.log("Creating user in database...");
+      console.log("🔍 Creating user in database...");
+      console.log("🔍 User data to insert:", {
+        username: req.body.username,
+        password: hashedPassword ? "***HASHED***" : "MISSING",
+        email: req.body.email,
+        roles: ["owner", "client"]
+      });
+      
       const user = await storage.createUser({
         ...req.body,
         password: hashedPassword,
         roles: ["owner", "client"], // Automatically assign both roles
       });
 
-      console.log("User created successfully:", user.id);
+      console.log("🔍 User created successfully:", user);
+      console.log("🔍 User ID:", user.id);
 
       console.log("🔍 User created successfully, attempting login...");
       req.login(user, (err) => {
@@ -159,16 +171,26 @@ export async function setupAuth(app: Express) {
           id: user.id,
           username: user.username
         };
-        console.log("🔍 Sending response:", responseData);
+        console.log("🔍 Sending response:", JSON.stringify(responseData, null, 2));
+        console.log("🔍 Response status: 201");
         res.status(201).json(responseData);
+        console.log("🔍 ===== REGISTRATION SUCCESS =====");
       });
     } catch (error) {
-      console.error("Registration error:", error);
-      res.status(500).json({ 
+      console.error("🔍 ===== REGISTRATION ERROR =====");
+      console.error("🔍 Error details:", error);
+      console.error("🔍 Error message:", error.message);
+      console.error("🔍 Error stack:", error.stack);
+      
+      const errorResponse = {
         success: false, 
         message: "Registration failed. Please try again.",
         error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      };
+      
+      console.log("🔍 Sending error response:", JSON.stringify(errorResponse, null, 2));
+      res.status(500).json(errorResponse);
+      console.log("🔍 ===== REGISTRATION ERROR END =====");
     }
   });
 
