@@ -147,7 +147,9 @@ export function setupAuth(app: Express) {
         res.status(201).json({
           success: true,
           user: user,
-          message: "Account created successfully"
+          message: "Account created successfully",
+          id: user.id,
+          username: user.username
         });
       });
     } catch (error) {

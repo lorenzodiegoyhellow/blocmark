@@ -145,7 +145,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw error;
       }
     },
-    onSuccess: (user: SelectUser) => {
+    onSuccess: (response: any) => {
+      // Handle the response structure from the backend
+      const user = response.user || response;
+      
       queryClient.setQueryData(["/api/user"], user);
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       
