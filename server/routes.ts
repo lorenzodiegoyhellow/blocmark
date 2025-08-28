@@ -285,8 +285,10 @@ export function setupRoutes(app: Express) {
         });
       }
 
-      // Return empty array for now - will implement storage later
-      res.json([]);
+      // Use the new storage function
+      const { storage } = await import("./storage");
+      const bookings = await storage.getBookingsByUserId(userId);
+      res.json(bookings || []);
     } catch (error: any) {
       console.error("Error fetching user bookings:", error);
       res.status(500).json({ 
@@ -307,8 +309,10 @@ export function setupRoutes(app: Express) {
         });
       }
 
-      // Return empty array for now - will implement storage later
-      res.json([]);
+      // Use the new storage function
+      const { storage } = await import("./storage");
+      const bookings = await storage.getBookingsByHostId(userId);
+      res.json(bookings || []);
     } catch (error: any) {
       console.error("Error fetching host bookings:", error);
       res.status(500).json({ 
@@ -330,8 +334,10 @@ export function setupRoutes(app: Express) {
         });
       }
 
-      // Return empty array for now - will implement storage later
-      res.json([]);
+      // Use the new storage function
+      const { storage } = await import("./storage");
+      const messages = await storage.getMessagesByUserId(userId);
+      res.json(messages || []);
     } catch (error: any) {
       console.error("Error fetching messages:", error);
       res.status(500).json({ 
@@ -353,8 +359,10 @@ export function setupRoutes(app: Express) {
         });
       }
 
-      // Return empty array for now - will implement storage later
-      res.json([]);
+      // Use the new storage function
+      const { storage } = await import("./storage");
+      const notifications = await storage.getNotificationsByUserId(userId);
+      res.json(notifications || []);
     } catch (error: any) {
       console.error("Error fetching notifications:", error);
       res.status(500).json({ 
@@ -376,8 +384,10 @@ export function setupRoutes(app: Express) {
         });
       }
 
-      // Return 0 for now - will implement storage later
-      res.json({ count: 0 });
+      // Use the existing storage function
+      const { storage } = await import("./storage");
+      const count = await storage.getUnreadNotificationsCount(userId);
+      res.json({ count: count || 0 });
     } catch (error: any) {
       console.error("Error fetching unread notifications count:", error);
       res.status(500).json({ 
@@ -399,8 +409,10 @@ export function setupRoutes(app: Express) {
         });
       }
 
-      // Return empty array for now - will implement storage later
-      res.json([]);
+      // Use the new storage function
+      const { storage } = await import("./storage");
+      const locations = await storage.getLocationsByOwnerId(userId);
+      res.json(locations || []);
     } catch (error: any) {
       console.error("Error fetching owner locations:", error);
       res.status(500).json({ 

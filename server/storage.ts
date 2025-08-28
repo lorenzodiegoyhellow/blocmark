@@ -4908,6 +4908,81 @@ export class DatabaseStorage implements IStorage {
     console.log(`[STORAGE] Successfully completed ${pastBookings.length} past bookings`);
   }
   
+  // Dashboard API aliases and missing functions
+  async getBookingsByUserId(userId: number): Promise<Booking[]> {
+    const result = await this.getUserBookings(userId, { limit: 100 });
+    return result.data;
+  }
+
+  async getBookingsByHostId(hostId: number): Promise<Booking[]> {
+    try {
+      // Get bookings where the user owns the location (is the host)
+      const userLocations = await this.getLocationsByOwner(hostId, { limit: 100 });
+      
+      if (userLocations.data.length === 0) {
+        return [];
+      }
+
+      const locationIds = userLocations.data.map(loc => loc.id);
+      
+      const hostBookings = await db
+        .select()
+        .from(bookings)
+        .where(inArray(bookings.locationId, locationIds))
+        .orderBy(desc(bookings.id));
+      
+      console.log(`Found ${hostBookings.length} host bookings for user ${hostId}`);
+      return hostBookings;
+    } catch (error) {
+      console.error(`Error getting host bookings for user ${hostId}:`, error);
+      return [];
+    }
+  }
+
+  async getMessagesByUserId(userId: number): Promise<Message[]> {
+    try {
+      // Get messages where user is sender or receiver
+      const userMessages = await db
+        .select()
+        .from(messages)
+        .where(
+          or(
+            eq(messages.senderId, userId),
+            eq(messages.receiverId, userId)
+          )
+        )
+        .orderBy(desc(messages.createdAt));
+      
+      console.log(`Found ${userMessages.length} messages for user ${userId}`);
+      return userMessages;
+    } catch (error) {
+      console.error(`Error getting messages for user ${userId}:`, error);
+      return [];
+    }
+  }
+
+  async getNotificationsByUserId(userId: number): Promise<Notification[]> {
+    return this.getUserNotifications(userId);
+  }
+
+  async getLocationsByOwnerId(ownerId: number): Promise<Location[]> {
+    const result = await this.getLocationsByOwner(ownerId, { limit: 100 });
+    return result.data;
+  }
+
+  async getUnreadNotificationsCount(userId: number): Promise<number> {
+    const unreadNotifications = await db
+      .select({ count: count() })
+      .from(notifications)
+      .where(
+        and(
+          eq(notifications.userId, userId),
+          eq(notifications.read, false)
+        )
+      );
+    
+    return unreadNotifications[0]?.count || 0;
+  }
 }
 
 export const storage = new DatabaseStorage();
