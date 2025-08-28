@@ -1,6 +1,7 @@
 import express, { Application, Express } from "express";
 import { ensureAuthenticated } from "./middleware/auth";
-import { setupAuth } from "./auth";
+import { setupAuth, hashPassword } from "./auth"; // Import hashPassword
+import passport from "passport";
 
 export function setupRoutes(app: Express) {
   // Health check endpoints
@@ -63,6 +64,71 @@ export function setupRoutes(app: Express) {
   // Setup auth routes FIRST (this sets up Passport.js and req.login)
   setupAuth(app).catch(error => {
     console.error("🔍 Failed to setup auth routes:", error);
+  });
+
+  // Enhanced login endpoint (defined here to ensure it's always registered)
+  app.post("/api/login", async (req, res, next) => {
+    console.log("🔍 ===== LOGIN START =====");
+    console.log("🔍 Login request received:", req.body);
+    
+    // Check if Passport.js is available
+    if (typeof passport === 'undefined') {
+      console.error("🔍 Passport.js not available");
+      return res.status(500).json({ 
+        success: false, 
+        message: "Authentication system not available" 
+      });
+    }
+
+    passport.authenticate("local", async (err: any, user: any, info: any) => {
+      if (err) {
+        console.error("🔍 Authentication error:", err);
+        return next(err);
+      }
+      
+      if (!user) {
+        console.log("🔍 Authentication failed:", info);
+        return res.status(401).json({ 
+          success: false, 
+          message: info?.message || "Invalid username or password" 
+        });
+      }
+      
+      console.log("🔍 User authenticated, attempting login...");
+      
+      req.login(user, async (err: any) => {
+        if (err) {
+          console.error("🔍 Login error:", err);
+          return next(err);
+        }
+        
+        try {
+          // Update last login IP and timestamp
+          const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
+          console.log("🔍 Updating user login info...");
+          
+          // Import storage dynamically to avoid startup issues
+          const { storage } = await import("./storage");
+          await storage.updateUser(user.id, {
+            lastLoginIp: clientIp,
+            lastLoginAt: new Date()
+          });
+          
+          console.log("🔍 User login info updated successfully");
+        } catch (updateError: any) {
+          console.error("🔍 Failed to update user login info:", updateError);
+          // Don't fail the login if this update fails
+        }
+        
+        console.log("🔍 User authenticated successfully:", user.username);
+        console.log("🔍 ===== LOGIN SUCCESS =====");
+        
+        return res.status(200).json({ 
+          success: true, 
+          user: req.user 
+        });
+      });
+    })(req, res, next);
   });
 
   // Enhanced registration endpoint (defined AFTER setupAuth so req.login is available)
