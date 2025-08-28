@@ -1,5 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { setupRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { setupSecurity } from "./middleware/security.js";
 import { setupCsrf } from "./middleware/csrf";
@@ -267,7 +267,7 @@ app.use((req, res, next) => {
     process.exit(1);
   }
 
-  const server = await registerRoutes(app);
+  const server = await setupRoutes(app);
   
   // Apply CSRF protection after routes are registered
   setupCsrf(app);
