@@ -7,6 +7,7 @@ import { auditMiddleware } from "./middleware/audit";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from 'url';
+import { createServer } from 'http';
 
 // Get directory names for ES modules environment
 const __filename = fileURLToPath(import.meta.url);
@@ -267,10 +268,14 @@ app.use((req, res, next) => {
     process.exit(1);
   }
 
-  const server = await setupRoutes(app);
+  // Setup routes
+  setupRoutes(app);
   
   // Apply CSRF protection after routes are registered
   setupCsrf(app);
+  
+  // Create HTTP server from Express app
+  const server = createServer(app);
 
   // Error handling middleware
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
@@ -312,9 +317,8 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Simplified port binding optimized for Replit
-  // Replit always expects port 5000 for its workflows
-  const port = 5000;
+  // Use environment variable PORT or default to 3000 for production
+  const port = process.env.PORT || 3000;
   
   // For Replit environments, always bind to 0.0.0.0 for proper accessibility
   server.listen(port, "0.0.0.0", () => {
