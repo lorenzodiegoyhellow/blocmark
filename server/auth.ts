@@ -85,19 +85,22 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      console.log("Registration request received:", { 
+      console.log("🔍 Registration request received:", { 
         username: req.body.username, 
         email: req.body.email,
         hasPassword: !!req.body.password 
       });
 
+      // Ensure we always send JSON responses
+      res.setHeader('Content-Type', 'application/json');
+
       // Test database connection first
       try {
-        console.log("Testing database connection...");
+        console.log("🔍 Testing database connection...");
         const testResult = await storage.executeRawQuery("SELECT 1 as test");
-        console.log("Database connection test result:", testResult);
+        console.log("🔍 Database connection test result:", testResult);
       } catch (dbError) {
-        console.error("Database connection test failed:", dbError);
+        console.error("🔍 Database connection test failed:", dbError);
         return res.status(500).json({ 
           success: false, 
           message: "Database connection failed. Please try again later.",
@@ -220,22 +223,33 @@ export function setupAuth(app: Express) {
   // Database health check endpoint
   app.get("/api/health/db", async (req, res) => {
     try {
-      console.log("Database health check requested");
+      console.log("🔍 Database health check requested");
       const testResult = await storage.executeRawQuery("SELECT 1 as test");
-      console.log("Database health check result:", testResult);
+      console.log("🔍 Database health check result:", testResult);
       res.json({ 
         status: "healthy", 
         database: "connected",
         result: testResult 
       });
     } catch (error) {
-      console.error("Database health check failed:", error);
+      console.error("🔍 Database health check failed:", error);
       res.status(500).json({ 
         status: "unhealthy", 
         database: "disconnected",
         error: error.message 
       });
     }
+  });
+
+  // Simple server health check
+  app.get("/api/health", (req, res) => {
+    console.log("🔍 Server health check requested");
+    res.json({ 
+      status: "healthy", 
+      server: "running",
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || "development"
+    });
   });
 
   // Setup OAuth strategies
