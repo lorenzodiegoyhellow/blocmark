@@ -139,18 +139,22 @@ export function setupAuth(app: Express) {
 
       console.log("User created successfully:", user.id);
 
+      console.log("🔍 User created successfully, attempting login...");
       req.login(user, (err) => {
         if (err) {
-          console.error("Login error after registration:", err);
+          console.error("🔍 Login error after registration:", err);
           return next(err);
         }
-        res.status(201).json({
+        console.log("🔍 Login successful, sending response...");
+        const responseData = {
           success: true,
           user: user,
           message: "Account created successfully",
           id: user.id,
           username: user.username
-        });
+        };
+        console.log("🔍 Sending response:", responseData);
+        res.status(201).json(responseData);
       });
     } catch (error) {
       console.error("Registration error:", error);

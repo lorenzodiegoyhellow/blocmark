@@ -119,6 +119,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (credentials: InsertUser) => {
       try {
+        console.log("🔍 Registration attempt with credentials:", { 
+          username: credentials.username, 
+          hasPassword: !!credentials.password,
+          hasEmail: !!credentials.email 
+        });
+        
         // Use direct fetch for registration to handle response properly
         const response = await fetch("/api/register", {
           method: "POST",
@@ -127,21 +133,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           credentials: "include"
         });
         
+        console.log("🔍 Response status:", response.status);
+        console.log("🔍 Response headers:", Object.fromEntries(response.headers.entries()));
+        
         if (!response.ok) {
           const errorText = await response.text();
+          console.error("🔍 Registration failed with status:", response.status, "Error:", errorText);
           throw new Error(errorText || `Registration failed with status: ${response.status}`);
         }
         
         // Only try to parse JSON if we have JSON content
         const contentType = response.headers.get("content-type");
+        console.log("🔍 Content-Type:", contentType);
+        
         if (contentType && contentType.includes("application/json")) {
-          return await response.json();
+          const responseData = await response.json();
+          console.log("🔍 Parsed response data:", responseData);
+          return responseData;
         } else {
           // Fallback if no JSON is returned
+          const responseText = await response.text();
+          console.error("🔍 Non-JSON response:", responseText);
           throw new Error("Invalid response format from server");
         }
       } catch (error) {
-        console.error("Registration error:", error);
+        console.error("🔍 Registration error:", error);
         throw error;
       }
     },
