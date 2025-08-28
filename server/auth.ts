@@ -227,14 +227,34 @@ export async function setupAuth(app: Express) {
   app.get("/api/health/db", async (req, res) => {
     try {
       console.log("🔍 Database health check requested");
+      
+      // Test basic connection
       const testResult = await storage.executeRawQuery("SELECT 1 as test");
-      console.log("🔍 Database health check result:", testResult);
-      res.json({ 
-        status: "healthy", 
-        database: "connected",
-        result: testResult 
-      });
-    } catch (error) {
+      console.log("🔍 Database connection test result:", testResult);
+      
+      // Test if users table exists
+      try {
+        const tableCheck = await storage.executeRawQuery("SELECT COUNT(*) as user_count FROM users");
+        console.log("🔍 Users table check result:", tableCheck);
+        
+        res.json({ 
+          status: "healthy", 
+          database: "connected",
+          users_table: "exists",
+          result: testResult,
+          user_count: tableCheck[0]?.user_count
+        });
+      } catch (tableError: any) {
+        console.error("🔍 Users table check failed:", tableError);
+        res.json({ 
+          status: "healthy", 
+          database: "connected",
+          users_table: "missing",
+          result: testResult,
+          table_error: tableError.message
+        });
+      }
+    } catch (error: any) {
       console.error("🔍 Database health check failed:", error);
       res.status(500).json({ 
         status: "unhealthy", 
