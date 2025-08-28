@@ -84,25 +84,63 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/register", async (req, res, next) => {
-    const existingUser = await storage.getUserByUsername(req.body.username);
-    if (existingUser) {
-      return res.status(400).send("Username already exists");
-    }
-
-    const user = await storage.createUser({
-      ...req.body,
-      password: await hashPassword(req.body.password),
-      roles: ["owner", "client"], // Automatically assign both roles
-    });
-
-    req.login(user, (err) => {
-      if (err) return next(err);
-      res.status(201).json({
-        success: true,
-        user: user,
-        message: "Account created successfully"
+    try {
+      console.log("Registration request received:", { 
+        username: req.body.username, 
+        email: req.body.email,
+        hasPassword: !!req.body.password 
       });
-    });
+
+      // Validate required fields
+      if (!req.body.username || !req.body.password) {
+        console.log("Missing required fields");
+        return res.status(400).json({ 
+          success: false, 
+          message: "Username and password are required" 
+        });
+      }
+
+      const existingUser = await storage.getUserByUsername(req.body.username);
+      if (existingUser) {
+        console.log("Username already exists:", req.body.username);
+        return res.status(400).json({ 
+          success: false, 
+          message: "Username already exists" 
+        });
+      }
+
+      // Hash password
+      const hashedPassword = await hashPassword(req.body.password);
+      console.log("Password hashed successfully");
+
+      // Create user
+      const user = await storage.createUser({
+        ...req.body,
+        password: hashedPassword,
+        roles: ["owner", "client"], // Automatically assign both roles
+      });
+
+      console.log("User created successfully:", user.id);
+
+      req.login(user, (err) => {
+        if (err) {
+          console.error("Login error after registration:", err);
+          return next(err);
+        }
+        res.status(201).json({
+          success: true,
+          user: user,
+          message: "Account created successfully"
+        });
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Registration failed. Please try again.",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+    }
   });
 
   app.post("/api/login", (req, res, next) => {
