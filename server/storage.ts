@@ -3150,7 +3150,7 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(notifications.userId, userId),
-          eq(notifications.read, false)
+          eq(notifications.isRead, false)
         )
       );
     
@@ -3162,7 +3162,7 @@ export class DatabaseStorage implements IStorage {
       .insert(notifications)
       .values({
         ...notification,
-        read: false,
+        isRead: false,
         createdAt: new Date(),
       })
       .returning();
@@ -3173,14 +3173,14 @@ export class DatabaseStorage implements IStorage {
   async markNotificationAsRead(notificationId: number): Promise<void> {
     await db
       .update(notifications)
-      .set({ read: true })
+      .set({ isRead: true })
       .where(eq(notifications.id, notificationId));
   }
 
   async markAllNotificationsAsRead(userId: number): Promise<void> {
     await db
       .update(notifications)
-      .set({ read: true })
+      .set({ isRead: true })
       .where(eq(notifications.userId, userId));
   }
 
@@ -4984,7 +4984,7 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(notifications.userId, userId),
-          eq(notifications.read, false)
+          eq(notifications.isRead, false)
         )
       );
     

@@ -91,7 +91,7 @@ notificationsRouter.patch("/messages/read/:userId/:locationId", ensureAuthentica
     const messageNotifications = notifications.filter(n => 
       n.type === "message_received" && 
       n.relatedType === "message" &&
-      !n.read
+      !n.isRead
     );
     
     console.log("Found", messageNotifications.length, "unread message notifications");
