@@ -23,7 +23,7 @@ export function setupRoutes(app: Express) {
 
   // Health check endpoints
   app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", timestamp: new Date().toISOString() });
+    res.json({ status: "ok", timestamp: new Date().toISOString(), version: "2fd38f4-deployed" });
   });
 
   // Enhanced database health check endpoint
