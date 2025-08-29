@@ -421,4 +421,80 @@ export function setupRoutes(app: Express) {
       });
     }
   });
+
+  // Add missing pending reviews endpoint for users
+  app.get("/api/user/pending-reviews", ensureAuthenticated, async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const pendingReviews = await storage.getPendingReviewsForUser(req.user!.id);
+      
+      // Enhance with location info
+      const enhancedPendingReviews = await Promise.all(
+        pendingReviews.map(async (booking) => {
+          const location = await storage.getLocation(booking.locationId);
+          return {
+            ...booking,
+            locationTitle: location?.title || "Unknown Location",
+            locationImage: location?.images?.[0] || null
+          };
+        })
+      );
+      
+      res.json(enhancedPendingReviews);
+    } catch (error: any) {
+      console.error("Failed to get pending reviews:", error);
+      res.status(500).json({ message: "Failed to get pending reviews" });
+    }
+  });
+
+  // Add missing host pending reviews endpoint
+  app.get("/api/reviews/host/pending", ensureAuthenticated, async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const pendingReviews = await storage.getPendingReviewsForHost(req.user!.id);
+      
+      // Enhance with guest info
+      const enhancedPendingReviews = await Promise.all(
+        pendingReviews.map(async (booking) => {
+          const guest = await storage.getUser(booking.clientId);
+          const location = await storage.getLocation(booking.locationId);
+          return {
+            ...booking,
+            guestName: guest?.username || "Unknown Guest",
+            guestImage: guest?.profileImage || null,
+            locationTitle: location?.title || "Unknown Location",
+            locationImage: location?.images?.[0] || null
+          };
+        })
+      );
+      
+      res.json(enhancedPendingReviews);
+    } catch (error: any) {
+      console.error("Failed to get host pending reviews:", error);
+      res.status(500).json({ message: "Failed to get host pending reviews" });
+    }
+  });
+
+  // Add missing booking eligibility endpoint
+  app.get("/api/user/booking-eligibility", ensureAuthenticated, async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const pendingReviews = await storage.getPendingReviewsForUser(req.user!.id);
+      
+      if (pendingReviews.length === 0) {
+        res.json({ eligible: true, pendingReviews: 0 });
+      } else {
+        res.json({
+          eligible: false,
+          pendingReviews: pendingReviews.length,
+          message: "You must complete pending reviews before making new bookings",
+          nextSteps: "Please complete your pending reviews on the dashboard"
+        });
+      }
+    } catch (error: any) {
+      console.error("Failed to check booking eligibility:", error);
+      // If we can't check, assume eligible to avoid blocking users
+      res.json({ eligible: true, pendingReviews: 0 });
+    }
+  });
 }
