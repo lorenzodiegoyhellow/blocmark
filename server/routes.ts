@@ -1,26 +1,14 @@
-import express, { Application, Express } from "express";
+import express, { Express } from "express";
 import { ensureAuthenticated } from "./middleware/auth";
-import { setupAuth, hashPassword } from "./auth"; // Import hashPassword
+import { setupAuth, hashPassword } from "./auth";
 import passport from "passport";
-import session from "express-session";
 import { sql } from "drizzle-orm";
 
 export function setupRoutes(app: Express) {
-  // Add essential session middleware FIRST (before any routes that need it)
-  app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-  }));
-
-  // Initialize Passport.js
-  app.use(passport.initialize());
-  app.use(passport.session());
+  // Setup auth routes FIRST (this sets up session, Passport.js, and req.login)
+  setupAuth(app).catch(error => {
+    console.error("🔍 Failed to setup auth routes:", error);
+  });
 
   // Health check endpoints
   app.get("/api/health", (req, res) => {
@@ -79,10 +67,7 @@ export function setupRoutes(app: Express) {
     res.json({ message: "This is a protected route", user: req.user });
   });
 
-  // Setup auth routes FIRST (this sets up Passport.js and req.login)
-  setupAuth(app).catch(error => {
-    console.error("🔍 Failed to setup auth routes:", error);
-  });
+
 
   // Enhanced login endpoint (defined here to ensure it's always registered)
   app.post("/api/login", async (req, res, next) => {
