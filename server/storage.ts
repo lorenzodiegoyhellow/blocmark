@@ -1250,48 +1250,59 @@ export class DatabaseStorage implements IStorage {
   }
   
   async getPendingReviewsForUser(userId: number): Promise<Booking[]> {
-    // Find completed bookings that don't have reviews yet
-    const userBookingsResult = await this.getUserBookings(userId, { limit: 100 }); // Get larger set for filtering
-    const userBookings = userBookingsResult.data;
-    
-    console.log(`[DEBUG] User ${userId} has ${userBookings.length} total bookings`);
-    
-    // Filter to only include completed bookings (or confirmed bookings that have ended)
-    const completedBookings = userBookings.filter(booking => 
-      (booking.status === "completed" || booking.status === "confirmed") && 
-      new Date(booking.endDate) < new Date()
-    );
-    
-    console.log(`[DEBUG] User ${userId} has ${completedBookings.length} completed bookings`);
-    
-    if (completedBookings.length === 0) {
-      return [];
-    }
-    
-    // Get booking IDs
-    const bookingIds = completedBookings.map(booking => booking.id);
-    
-    // Find which bookings already have reviews BY THIS USER
-    const existingReviews = await db
-      .select()
-      .from(reviews)
-      .where(
-        and(
-          inArray(reviews.bookingId, bookingIds),
-          eq(reviews.userId, userId)
-        )
+    try {
+      console.log("🔍 [STORAGE] getPendingReviewsForUser called for user:", userId);
+      
+      // Find completed bookings that don't have reviews yet
+      const userBookingsResult = await this.getUserBookings(userId, { limit: 100 }); // Get larger set for filtering
+      const userBookings = userBookingsResult.data;
+      
+      console.log(`🔍 [STORAGE] User ${userId} has ${userBookings.length} total bookings`);
+      
+      // Filter to only include completed bookings (or confirmed bookings that have ended)
+      const completedBookings = userBookings.filter(booking => 
+        (booking.status === "completed" || booking.status === "confirmed") && 
+        new Date(booking.endDate) < new Date()
       );
-    
-    const reviewedBookingIds = existingReviews.map(review => review.bookingId);
-    
-    console.log(`[DEBUG] User ${userId} has ${existingReviews.length} existing reviews`);
-    
-    // Return bookings that don't have reviews yet
-    const pendingReviews = completedBookings.filter(booking => !reviewedBookingIds.includes(booking.id));
-    
-    console.log(`[DEBUG] User ${userId} has ${pendingReviews.length} pending reviews`);
-    
-    return pendingReviews;
+      
+      console.log(`🔍 [STORAGE] User ${userId} has ${completedBookings.length} completed bookings`);
+      
+      if (completedBookings.length === 0) {
+        console.log("🔍 [STORAGE] No completed bookings found");
+        return [];
+      }
+      
+      // Get booking IDs
+      const bookingIds = completedBookings.map(booking => booking.id);
+      console.log("🔍 [STORAGE] Booking IDs to check for reviews:", bookingIds);
+      
+      // Find which bookings already have reviews BY THIS USER
+      const existingReviews = await db
+        .select()
+        .from(reviews)
+        .where(
+          and(
+            inArray(reviews.bookingId, bookingIds),
+            eq(reviews.userId, userId)
+          )
+        );
+      
+      const reviewedBookingIds = existingReviews.map(review => review.bookingId);
+      
+      console.log(`🔍 [STORAGE] User ${userId} has ${existingReviews.length} existing reviews`);
+      
+      // Return bookings that don't have reviews yet
+      const pendingReviews = completedBookings.filter(booking => !reviewedBookingIds.includes(booking.id));
+      
+      console.log(`🔍 [STORAGE] User ${userId} has ${pendingReviews.length} pending reviews`);
+      
+      return pendingReviews;
+    } catch (error: any) {
+      console.error("🔍 [STORAGE] Error in getPendingReviewsForUser:", error);
+      console.error("🔍 [STORAGE] Error message:", error.message);
+      console.error("🔍 [STORAGE] Error stack:", error.stack);
+      throw error;
+    }
   }
 
   async getPendingReviewsForHost(hostUserId: number): Promise<Booking[]> {

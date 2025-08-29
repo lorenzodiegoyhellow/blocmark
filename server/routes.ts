@@ -425,8 +425,13 @@ export function setupRoutes(app: Express) {
   // Add missing pending reviews endpoint for users
   app.get("/api/user/pending-reviews", ensureAuthenticated, async (req, res) => {
     try {
+      console.log("🔍 [PENDING-REVIEWS] Starting request for user:", req.user!.id);
+      
       const { storage } = await import("./storage");
+      console.log("🔍 [PENDING-REVIEWS] Storage imported successfully");
+      
       const pendingReviews = await storage.getPendingReviewsForUser(req.user!.id);
+      console.log("🔍 [PENDING-REVIEWS] Got pending reviews:", pendingReviews.length);
       
       // Enhance with location info
       const enhancedPendingReviews = await Promise.all(
@@ -440,10 +445,13 @@ export function setupRoutes(app: Express) {
         })
       );
       
+      console.log("🔍 [PENDING-REVIEWS] Enhanced reviews:", enhancedPendingReviews.length);
       res.json(enhancedPendingReviews);
     } catch (error: any) {
-      console.error("Failed to get pending reviews:", error);
-      res.status(500).json({ message: "Failed to get pending reviews" });
+      console.error("🔍 [PENDING-REVIEWS] Error:", error);
+      console.error("🔍 [PENDING-REVIEWS] Error message:", error.message);
+      console.error("🔍 [PENDING-REVIEWS] Error stack:", error.stack);
+      res.status(500).json({ message: "Failed to get pending reviews", error: error.message });
     }
   });
 
