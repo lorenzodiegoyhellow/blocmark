@@ -2,10 +2,27 @@ import express, { Express } from "express";
 import { ensureAuthenticated } from "./middleware/auth";
 import { setupAuth, hashPassword } from "./auth";
 import passport from "passport";
+import session from "express-session";
 import { sql } from "drizzle-orm";
 
 export function setupRoutes(app: Express) {
-  // Setup auth routes FIRST (this sets up session, Passport.js, and req.login)
+  // Setup session middleware FIRST (before any routes that need it)
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
+
+  // Initialize Passport.js
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  // Setup auth routes (this sets up Passport.js strategies and routes)
   setupAuth(app).catch(error => {
     console.error("🔍 Failed to setup auth routes:", error);
   });
