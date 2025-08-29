@@ -3,6 +3,7 @@ import { ensureAuthenticated } from "./middleware/auth";
 import { setupAuth, hashPassword } from "./auth"; // Import hashPassword
 import passport from "passport";
 import session from "express-session";
+import { sql } from "drizzle-orm";
 
 export function setupRoutes(app: Express) {
   // Add essential session middleware FIRST (before any routes that need it)
@@ -503,6 +504,45 @@ export function setupRoutes(app: Express) {
       console.error("Failed to check booking eligibility:", error);
       // If we can't check, assume eligible to avoid blocking users
       res.json({ eligible: true, pendingReviews: 0 });
+    }
+  });
+
+  // Debug endpoint to check database table structure
+  app.get("/api/debug/tables", ensureAuthenticated, async (req, res) => {
+    try {
+      const { db } = await import("./db");
+      
+      // Check if key tables exist and their structure
+      const tableChecks: Record<string, any> = {
+        users: null,
+        locations: null,
+        bookings: null,
+        reviews: null,
+        notifications: null,
+        messages: null
+      };
+
+      // Check each table
+      for (const tableName of Object.keys(tableChecks)) {
+        try {
+          const result = await db.execute(sql`SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name = ${tableName} ORDER BY ordinal_position`);
+          tableChecks[tableName] = result.rows;
+        } catch (error: any) {
+          tableChecks[tableName] = { error: error.message };
+        }
+      }
+
+      res.json({
+        message: "Database table structure check",
+        tables: tableChecks,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error("🔍 [DEBUG] Error checking tables:", error);
+      res.status(500).json({ 
+        message: "Failed to check database tables", 
+        error: error.message 
+      });
     }
   });
 }
