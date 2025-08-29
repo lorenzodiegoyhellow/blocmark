@@ -5,27 +5,33 @@ import passport from "passport";
 import session from "express-session";
 import { sql } from "drizzle-orm";
 
-export function setupRoutes(app: Express) {
-  // Setup session middleware FIRST (before any routes that need it)
-  app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-  }));
+export async function setupRoutes(app: Express) {
+  try {
+    // Dynamically import storage to get the session store
+    const { storage } = await import("./storage");
+    
+    // Setup session middleware FIRST (before any routes that need it)
+    app.use(session({
+      secret: process.env.SESSION_SECRET || 'your-secret-key',
+      resave: false,
+      saveUninitialized: false,
+      store: storage.sessionStore, // Use the proper session store
+      cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      }
+    }));
 
-  // Initialize Passport.js
-  app.use(passport.initialize());
-  app.use(passport.session());
+    // Initialize Passport.js
+    app.use(passport.initialize());
+    app.use(passport.session());
 
-  // Setup auth routes (this sets up Passport.js strategies and routes)
-  setupAuth(app).catch(error => {
-    console.error("🔍 Failed to setup auth routes:", error);
-  });
+    // Setup auth routes (this sets up Passport.js strategies and routes)
+    await setupAuth(app);
+  } catch (error) {
+    console.error("🔍 Failed to setup routes:", error);
+  }
 
   // Health check endpoints
   app.get("/api/health", (req, res) => {

@@ -269,7 +269,7 @@ app.use((req, res, next) => {
   }
 
   // Setup routes
-  setupRoutes(app);
+  await setupRoutes(app);
   
   // Apply CSRF protection after routes are registered
   setupCsrf(app);

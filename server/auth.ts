@@ -33,26 +33,8 @@ export async function setupAuth(app: Express) {
     // Dynamically import storage to avoid startup errors
     const { storage } = await import("./storage");
     
-    const sessionSettings: session.SessionOptions = {
-      secret: process.env.REPL_ID || 'blocmark-dev-secret',
-      resave: false,
-      saveUninitialized: false,
-      store: storage.sessionStore,
-      cookie: {
-        httpOnly: true,
-        secure: app.get('env') === 'production', // Only use secure cookies in production
-        sameSite: 'lax', // Helps prevent CSRF attacks
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-      }
-    };
-
-  if (app.get("env") === "production") {
-    app.set("trust proxy", 1);
-  }
-
-  app.use(session(sessionSettings));
-  app.use(passport.initialize());
-  app.use(passport.session());
+    // Note: Session middleware is now set up in routes.ts
+    // We only need to configure Passport.js strategies here
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {
