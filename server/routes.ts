@@ -431,6 +431,78 @@ export async function setupRoutes(app: Express) {
     }
   });
 
+  // Add missing locations owner by ID route (for listings page)
+  app.get("/api/locations/owner/:id", ensureAuthenticated, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      if (!userId) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid user ID" 
+        });
+      }
+
+      // Use the new storage function
+      const { storage } = await import("./storage");
+      const locations = await storage.getLocationsByOwnerId(userId);
+      res.json(locations || []);
+    } catch (error: any) {
+      console.error("Error fetching owner locations by ID:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch locations" 
+      });
+    }
+  });
+
+  // Add missing general locations route
+  app.get("/api/locations", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const locations = await storage.getLocations();
+      res.json(locations || []);
+    } catch (error: any) {
+      console.error("Error fetching all locations:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch locations" 
+      });
+    }
+  });
+
+  // Add missing location by ID route
+  app.get("/api/locations/:id", async (req, res) => {
+    try {
+      const locationId = parseInt(req.params.id);
+      
+      if (!locationId) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid location ID" 
+        });
+      }
+
+      const { storage } = await import("./storage");
+      const location = await storage.getLocation(locationId);
+      
+      if (!location) {
+        return res.status(404).json({ 
+          success: false, 
+          message: "Location not found" 
+        });
+      }
+      
+      res.json(location);
+    } catch (error: any) {
+      console.error("Error fetching location by ID:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch location" 
+      });
+    }
+  });
+
   // Add missing pending reviews endpoint for users
   app.get("/api/user/pending-reviews", ensureAuthenticated, async (req, res) => {
     try {
