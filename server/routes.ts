@@ -486,53 +486,74 @@ export async function setupRoutes(app: Express) {
         return res.status(401).json({ message: "Authentication required" });
       }
 
+      console.log('=== LOCATION CREATION DEBUG ===');
+      console.log('Raw request body:', JSON.stringify(req.body, null, 2));
+      console.log('Request body keys:', Object.keys(req.body));
+      
+      // Check each field for potential issues
+      Object.entries(req.body).forEach(([key, value]) => {
+        console.log(`Field ${key}:`, {
+          type: typeof value,
+          isArray: Array.isArray(value),
+          value: typeof value === 'string' ? value.substring(0, 100) + '...' : value
+        });
+      });
+
       // Clean and validate the incoming data
       const cleanLocationData = {
         ...req.body,
         ownerId: req.user.id,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
         status: 'active'
       };
+
+      console.log('Clean location data keys:', Object.keys(cleanLocationData));
 
       // Handle availability field - ensure it's properly formatted
       if (cleanLocationData.availability && typeof cleanLocationData.availability === 'string') {
         try {
           // If it's already a JSON string, parse it to validate
           JSON.parse(cleanLocationData.availability);
+          console.log('Availability parsed successfully');
         } catch (e) {
           // If parsing fails, convert it to a proper format
+          console.log('Availability parsing failed, setting to empty array');
           cleanLocationData.availability = JSON.stringify([]);
         }
       } else if (cleanLocationData.availability && Array.isArray(cleanLocationData.availability)) {
         // If it's an array, convert to JSON string
+        console.log('Availability is array, converting to JSON string');
         cleanLocationData.availability = JSON.stringify(cleanLocationData.availability);
       } else {
         // Default to empty array
+        console.log('Setting availability to empty array');
         cleanLocationData.availability = JSON.stringify([]);
       }
 
       // Ensure images is an array
       if (!Array.isArray(cleanLocationData.images)) {
+        console.log('Images is not array, setting to empty array');
         cleanLocationData.images = [];
       }
 
       // Ensure pricingMatrix is an object
       if (!cleanLocationData.pricingMatrix || typeof cleanLocationData.pricingMatrix !== 'object') {
+        console.log('Setting pricingMatrix to empty object');
         cleanLocationData.pricingMatrix = {};
       }
 
       // Ensure enabledGroupSizes is an array
       if (!Array.isArray(cleanLocationData.enabledGroupSizes)) {
+        console.log('Setting enabledGroupSizes to default');
         cleanLocationData.enabledGroupSizes = ['small'];
       }
 
-      console.log('Creating new location:', { 
+      console.log('Final clean data structure:', {
         ...cleanLocationData, 
         images: cleanLocationData.images?.length || 0,
         availability: cleanLocationData.availability?.substring(0, 100) + '...' // Truncate for logging
       });
 
+      console.log('About to call storage.createLocation...');
       const createdLocation = await storage.createLocation(cleanLocationData);
       
       if (!createdLocation) {
@@ -542,7 +563,12 @@ export async function setupRoutes(app: Express) {
       console.log('Location created successfully:', createdLocation.id);
       res.status(201).json(createdLocation);
     } catch (error: any) {
-      console.error("Error creating location:", error);
+      console.error("=== LOCATION CREATION ERROR ===");
+      console.error("Error type:", typeof error);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+      console.error("Full error object:", error);
+      
       res.status(500).json({ 
         message: "Failed to create location",
         error: error.message 
