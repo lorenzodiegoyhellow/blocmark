@@ -4995,7 +4995,7 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(notifications.userId, userId),
-          eq(notifications.isRead, false)
+          eq(notifications.read, false)
         )
       );
     

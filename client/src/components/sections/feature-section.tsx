@@ -4,40 +4,22 @@ import { useTranslation } from "@/hooks/use-translation";
 // Feature data with icons and descriptions
 const features = [
   {
-    icon: <Building2 className="w-6 h-6" />,
-    title: "Find Unique Spaces",
-    description: "Discover professionally vetted locations for any creative need - from intimate studios to expansive venues and unique outdoor settings.",
-    image: "./attached_assets/1.jpg",
-    alt: "Elegant ornate interior with grand staircase and chandelier",
-    points: [
-      "Over 5,000 unique locations across the globe",
-      "From studios to warehouses & outdoor settings",
-      "Exclusive venues not available elsewhere"
-    ]
+    title: "AI-Powered Search",
+    description: "Find the perfect location using natural language. Describe what you need and let our AI find it for you.",
+    image: "/attached_assets/1.jpg",
+    icon: "🔍"
   },
   {
-    icon: <Calculator className="w-6 h-6" />,
-    title: "Transparent Pricing",
-    description: "Book with confidence knowing all costs upfront - hourly rates, deposits, and additional services are clearly displayed with no hidden fees.",
-    image: "./attached_assets/2.png",
-    alt: "Woman smiling at her phone after checking transparent pricing",
-    points: [
-      "Clear hourly rates without hidden fees",
-      "Detailed breakdown of all costs upfront",
-      "Flexible deposit and cancellation policies"
-    ]
+    title: "Instant Booking",
+    description: "Book locations instantly with our streamlined booking process. No more back-and-forth emails.",
+    image: "/attached_assets/2.png",
+    icon: "📅"
   },
   {
-    icon: <Shield className="w-6 h-6" />,
-    title: "Secure Bookings",
-    description: "Every booking comes with comprehensive insurance coverage and our location protection guarantee for peace of mind.",
-    image: "./attached_assets/3.jpg",
-    alt: "Group of diverse people gathered around laptop working together",
-    points: [
-      "Up to $2M insurance coverage included",
-      "Secure payment processing system",
-      "24/7 customer support for all bookings"
-    ]
+    title: "Verified Locations",
+    description: "Every location is verified by our team to ensure quality and accuracy.",
+    image: "/attached_assets/3.jpg",
+    icon: "✅"
   }
 ];
 

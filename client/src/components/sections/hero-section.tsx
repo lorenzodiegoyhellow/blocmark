@@ -19,27 +19,27 @@ export function HeroSection() {
   // Background images from uploaded assets
   const backgrounds: BackgroundImage[] = [
     {
-      url: "./attached_assets/diana-cabezas-Ln9YUs7J93Q-unsplash_1753153627479.jpg",
+      url: "/attached_assets/diana-cabezas-Ln9YUs7J93Q-unsplash_1753153627479.jpg",
       alt: "Vibrant turquoise door with desert cacti plants against white Mediterranean walls"
     },
     {
-      url: "./attached_assets/1.jpg",
+      url: "/attached_assets/1.jpg",
       alt: "Rich Victorian interior with red walls and antique furniture"
     },
     {
-      url: "./attached_assets/6I4B5772.jpg", 
+      url: "/attached_assets/6I4B5772.jpg", 
       alt: "Vintage teal house in desert setting"
     },
     {
-      url: "./attached_assets/vault2698-2.jpg",
+      url: "/attached_assets/vault2698-2.jpg",
       alt: "Luxurious vintage lounge with ornate ceiling and mood lighting"
     },
     {
-      url: "./attached_assets/hotel27112.jpg",
+      url: "/attached_assets/hotel27112.jpg",
       alt: "Elegant hotel interior with classical architecture"
     },
     {
-      url: "./attached_assets/victorian28972.jpg",
+      url: "/attached_assets/victorian28972.jpg",
       alt: "Victorian style architectural details with vintage charm"
     }
   ];

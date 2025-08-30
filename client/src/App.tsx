@@ -28,6 +28,7 @@ import BookingSummary from "./pages/booking-summary";
 import DirectBookingPage from "./pages/direct-booking";
 import SimpleBookingSummary from "./pages/simple-booking-summary";
 import UserProfileNew from "./pages/user-profile-new";
+import UserProfile from "./pages/user-profile";
 import AccountSettings from "./pages/account-settings";
 import SavedLocationsPage from "./pages/saved-locations";
 import HelpSupportPage from "./pages/help-support";
@@ -125,7 +126,7 @@ function Router() {
         <Route path="/booking-success" component={BookingSuccessPage} />
         <Route path="/payment-success" component={BookingSuccessPage} />
         <Route path="/payment-confirmation/:bookingId" component={PaymentConfirmation} />
-        <Route path="/users/:id" component={UserProfileNew} />
+        <Route path="/users/:id" component={UserProfile} />
         <Route path="/payment-link/:checkoutUrl" component={PaymentLinkPage} />
         <Route path="/host/bookings/:id" component={HostBookingDetailsPage} />
         <Route path="/host-booking/:id" component={HostBookingDetailsPage} />

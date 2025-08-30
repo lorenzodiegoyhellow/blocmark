@@ -43,6 +43,24 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
+  // Serve static files (images, etc.) before Vite middleware
+  const attachedAssetsPath = path.resolve(__dirname, "..", "attached_assets");
+  const clientAssetsPath = path.resolve(__dirname, "..", "client", "public", "assets");
+  
+  // Serve attached assets (images, etc.)
+  if (fs.existsSync(attachedAssetsPath)) {
+    app.use("/attached_assets", express.static(attachedAssetsPath));
+    console.log(`[VITE] Serving attached assets from: ${attachedAssetsPath}`);
+  } else {
+    console.log(`[VITE] Attached assets path not found: ${attachedAssetsPath}`);
+  }
+  
+  // Serve client assets (logos, etc.)
+  if (fs.existsSync(clientAssetsPath)) {
+    app.use("/assets", express.static(clientAssetsPath));
+    console.log(`[VITE] Serving client assets from: ${clientAssetsPath}`);
+  }
+
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
@@ -87,6 +105,9 @@ export function serveStatic(app: Express) {
   // Serve attached assets (images, etc.)
   if (fs.existsSync(attachedAssetsPath)) {
     app.use("/attached_assets", express.static(attachedAssetsPath));
+    console.log(`[STATIC] Serving attached assets from: ${attachedAssetsPath}`);
+  } else {
+    console.log(`[STATIC] Attached assets path not found: ${attachedAssetsPath}`);
   }
   
   // Serve client assets (logos, etc.)

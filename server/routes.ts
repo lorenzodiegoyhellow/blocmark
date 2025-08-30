@@ -625,4 +625,122 @@ export async function setupRoutes(app: Express) {
       });
     }
   });
+
+  // User profile routes
+  app.get("/api/users/:id", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = parseInt(req.params.id);
+      
+      if (!userId) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Don't send sensitive information
+      const { password, ...safeUser } = user;
+      res.json(safeUser);
+    } catch (error: any) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  app.get("/api/users/:id/listings", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = parseInt(req.params.id);
+      
+      if (!userId) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      const listings = await storage.getLocationsByOwnerId(userId);
+      res.json(listings);
+    } catch (error: any) {
+      console.error("Error fetching user listings:", error);
+      res.status(500).json({ message: "Failed to fetch user listings" });
+    }
+  });
+
+  app.get("/api/users/:id/stats", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = parseInt(req.params.id);
+      
+      if (!userId) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // Get basic stats
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Get listings count
+      const listings = await storage.getLocationsByOwnerId(userId);
+      const listingCount = listings ? listings.length : 0;
+
+      const stats = {
+        hostRating: null,
+        guestRating: null,
+        overallRating: null,
+        hostReviewCount: 0,
+        guestReviewCount: 0,
+        totalReviewCount: 0,
+        isEmailVerified: false,
+        isPhoneVerified: false,
+        responseTime: null,
+        listingCount: listingCount,
+        joinDate: user.createdAt
+      };
+
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Error fetching user stats:", error);
+      res.status(500).json({ message: "Failed to fetch user stats" });
+    }
+  });
+
+  app.get("/api/users/:id/host-reviews", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = parseInt(req.params.id);
+      
+      if (!userId) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // For now, return empty array since getReviewsByHostId doesn't exist
+      // TODO: Implement proper host reviews fetching
+      res.json([]);
+    } catch (error: any) {
+      console.error("Error fetching host reviews:", error);
+      res.status(500).json({ message: "Failed to fetch host reviews" });
+    }
+  });
+
+  app.get("/api/users/:id/guest-reviews", async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      const userId = parseInt(req.params.id);
+      
+      if (!userId) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // For now, return empty array since guest reviews functionality doesn't exist yet
+      // TODO: Implement proper guest reviews fetching
+      res.json([]);
+    } catch (error: any) {
+      console.error("Error fetching guest reviews:", error);
+      res.status(500).json({ message: "Failed to fetch guest reviews" });
+    }
+  });
 }

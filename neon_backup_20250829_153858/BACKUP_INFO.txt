@@ -1,0 +1,15 @@
+Blocmark Neon Database Backup
+=============================
+Date: Fri Aug 29 15:39:38 PDT 2025
+Database URL: postgresql://neondb_owner:npg_ADptgR4ySVi6@ep-calm-butterfly-ad2x6ugs-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+Backup Files:
+- schema_backup.sql: Database structure only
+- data_backup.sql: Data only
+- full_backup.sql: Complete database backup
+
+To restore this backup:
+1. Create a new Neon database
+2. Use: psql "new_database_url" < full_backup.sql
+
+⚠️  Keep these files safe!

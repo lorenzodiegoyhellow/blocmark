@@ -97,67 +97,17 @@ export default function MessagesPage() {
     enabled: !!selectedConversation?.locationId,
   });
 
-  // WebSocket connection setup
+  // WebSocket connection setup - TEMPORARILY DISABLED
   useEffect(() => {
     if (!user) return;
 
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    const newSocket = new WebSocket(wsUrl);
-
-    newSocket.onopen = () => {
-      console.log('WebSocket connected');
-    };
-
-    newSocket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        
-        if (data.type === 'new_message') {
-          // Update messages in the cache
-          queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
-          
-          // Also invalidate conversation-specific queries if we're currently viewing that conversation
-          if (selectedConversation && data.data) {
-            const newMessage = data.data;
-            if (
-              newMessage.locationId === selectedConversation.locationId &&
-              (newMessage.senderId === selectedConversation.userId || 
-               newMessage.receiverId === selectedConversation.userId)
-            ) {
-              queryClient.invalidateQueries({ 
-                queryKey: [`/api/messages/conversation/${selectedConversation.userId}/${selectedConversation.locationId}`] 
-              });
-            }
-          }
-
-          // Show notification for new messages
-          if (data.data.receiverId === user.id) {
-            toast({
-              title: t("messages.newMessage"),
-              description: t("messages.receivedNewMessage"),
-            });
-          }
-        }
-      } catch (error) {
-        console.error('Error processing WebSocket message:', error);
-      }
-    };
-
-    newSocket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      toast({
-        title: t("messages.connectionError"),
-        description: t("messages.connectionErrorDesc"),
-        variant: "destructive",
-      });
-    };
-
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
+    // TODO: Re-enable WebSocket when backend WebSocket server is implemented
+    console.log('WebSocket connection temporarily disabled');
+    
+    // const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    // const wsUrl = `${protocol}//${window.location.host}/ws`;
+    // const newSocket = new WebSocket(wsUrl);
+    // ... rest of WebSocket code commented out temporarily
   }, [user, queryClient, toast, selectedConversation]);
 
   // Set initial conversation from URL parameters and session storage
