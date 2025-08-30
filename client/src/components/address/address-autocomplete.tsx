@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Check, MapPin } from "lucide-react";
+import { config } from '../../config/env';
 
 type Props = {
   value: string;
@@ -53,7 +54,7 @@ export const AddressAutocomplete = forwardRef<HTMLInputElement, Props>(({
     if (!window.google || !window.google.maps || !window.google.maps.places) {
       // Load Google Maps API if not already loaded
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMapsApiKey}&libraries=places`;
       script.async = true;
       script.defer = true;
       document.head.appendChild(script);

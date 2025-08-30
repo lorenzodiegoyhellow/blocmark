@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { config } from '../../config/env';
 
 interface Props {
   address: string;
@@ -34,7 +35,7 @@ export function LocationMap({ address, className = "" }: Props) {
 
       // Create and append script
       scriptElement = document.createElement('script');
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      const apiKey = config.googleMapsApiKey;
 
       if (!apiKey) {
         setError('Google Maps API key is missing');

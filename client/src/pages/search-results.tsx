@@ -27,6 +27,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { config } from '../config/env';
 
 // Extract city name from address string
 function extractCityNameFromAddress(address: string): string {
@@ -688,7 +689,7 @@ export default function SearchResultsPage() {
           if (!existingScript) {
             // Add Google Maps script if not present
             const script = document.createElement('script');
-            const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+            const apiKey = config.googleMapsApiKey;
             script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,places`;
             script.async = true;
             script.onload = () => {

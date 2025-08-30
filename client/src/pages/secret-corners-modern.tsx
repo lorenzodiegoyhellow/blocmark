@@ -25,6 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { AddressAutocompleteSimple } from "@/components/address/address-autocomplete-simple";
 import { ModernForum } from "@/components/forum/modern-forum";
+import { config } from '../config/env';
 
 // Types
 interface SecretLocation {
@@ -192,7 +193,7 @@ export default function SecretCornersModern() {
       }
 
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places,marker`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${config.googleMapsApiKey}&libraries=places,marker`;
       script.async = true;
       script.defer = true;
       script.onload = initializeMap;

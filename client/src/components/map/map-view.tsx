@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
+import { config } from '../../config/env';
 import { Location } from "@shared/schema";
 import { Loader2 } from "lucide-react";
 
@@ -38,7 +39,7 @@ export function MapView({
       }
 
       const script = document.createElement('script');
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+      const apiKey = config.googleMapsApiKey;
 
       if (!apiKey) {
         setError('Google Maps API key is missing');
