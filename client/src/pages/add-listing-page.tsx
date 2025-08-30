@@ -1060,6 +1060,13 @@ export default function AddListingPage() {
         // Invalidate queries to refresh the data
         queryClient.invalidateQueries({ queryKey: [`/api/locations/owner/${user.id}`] });
         queryClient.invalidateQueries({ queryKey: ['/api/locations'] });
+        
+        // Also invalidate any other related queries that might be used
+        queryClient.invalidateQueries({ queryKey: ['/api/locations/owner'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/locations'] });
+        
+        // Force a refetch of the current user's listings
+        queryClient.refetchQueries({ queryKey: [`/api/locations/owner/${user.id}`] });
 
         toast({
           title: "Success!",

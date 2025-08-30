@@ -472,8 +472,43 @@ export async function setupRoutes(app: Express) {
     } catch (error: any) {
       console.error("Error fetching all locations:", error);
       res.status(500).json({ 
-        success: false, 
         message: "Failed to fetch locations" 
+      });
+    }
+  });
+
+  // Add POST endpoint for creating new locations
+  app.post("/api/locations", ensureAuthenticated, async (req, res) => {
+    try {
+      const { storage } = await import("./storage");
+      
+      if (!req.user?.id) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const locationData = {
+        ...req.body,
+        ownerId: req.user.id,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        status: 'active'
+      };
+
+      console.log('Creating new location:', { ...locationData, images: locationData.images?.length || 0 });
+
+      const createdLocation = await storage.createLocation(locationData);
+      
+      if (!createdLocation) {
+        throw new Error('Failed to create location');
+      }
+
+      console.log('Location created successfully:', createdLocation.id);
+      res.status(201).json(createdLocation);
+    } catch (error: any) {
+      console.error("Error creating location:", error);
+      res.status(500).json({ 
+        message: "Failed to create location",
+        error: error.message 
       });
     }
   });
