@@ -1218,9 +1218,9 @@ function EnhancedLocationDetails() {
                 
                 <TabsContent value="reviews" className="space-y-6">
                   <ReviewSection 
-                    locationId={data.id}
+                    locationId={data?.id || Number(id)}
                     currentUser={currentUser}
-                    isOwner={currentUser?.id === data.ownerId}
+                    isOwner={currentUser?.id === data?.ownerId}
                   />
                 </TabsContent>
               </Tabs>
@@ -1318,10 +1318,16 @@ function EnhancedLocationDetails() {
                       {!!location.instantBooking && (
                         <Zap className="h-5 w-5 text-yellow-600" />
                       )}
-                      <span className="text-xl font-bold">${data ? getPricePerHour(data, groupSize, activityType) : location.price}</span>
+                      {isLoading ? (
+                        <span className="text-xl font-bold text-muted-foreground">Loading...</span>
+                      ) : (
+                        <span className="text-xl font-bold">
+                          ${data ? getPricePerHour(data, groupSize, activityType) : (location?.price || 'N/A')}
+                        </span>
+                      )}
                       <span className="text-sm text-muted-foreground"> / hour</span>
                     </div>
-                    {location.minHours > 0 && (
+                    {location?.minHours > 0 && (
                       <div className="text-xs text-muted-foreground">
                         Min: {location.minHours}h
                       </div>
@@ -1589,22 +1595,22 @@ function EnhancedLocationDetails() {
                         onChange={(e) => setGroupSize(e.target.value)}
                       >
                         {/* Filter options based on enabled group sizes - default to all if not specified */}
-                        {(!data.enabledGroupSizes || data.enabledGroupSizes.length === 0 || data.enabledGroupSizes.includes('small')) && (
-                          <option value="small">Small Group (1-5 people) - ${getPricePerHour(data, 'small', activityType)}/hr</option>
+                        {(!data?.enabledGroupSizes || data.enabledGroupSizes.length === 0 || data.enabledGroupSizes.includes('small')) && (
+                          <option value="small">Small Group (1-5 people) - ${data ? getPricePerHour(data, 'small', activityType) : 'N/A'}/hr</option>
                         )}
-                        {(!data.enabledGroupSizes || data.enabledGroupSizes.length === 0 || data.enabledGroupSizes.includes('medium')) && (
+                        {(!data?.enabledGroupSizes || data.enabledGroupSizes.length === 0 || data.enabledGroupSizes.includes('medium')) && (
                           <option value="medium">
-                            Medium Group (6-15 people) - ${getPricePerHour(data, 'medium', activityType)}/hr
+                            Medium Group (6-15 people) - ${data ? getPricePerHour(data, 'medium', activityType) : 'N/A'}/hr
                           </option>
                         )}
-                        {(!data.enabledGroupSizes || data.enabledGroupSizes.length === 0 || data.enabledGroupSizes.includes('large')) && (
+                        {(!data?.enabledGroupSizes || data.enabledGroupSizes.length === 0 || data.enabledGroupSizes.includes('large')) && (
                           <option value="large">
-                            Large Group (16-30 people) - ${getPricePerHour(data, 'large', activityType)}/hr
+                            Large Group (16-30 people) - ${data ? getPricePerHour(data, 'large', activityType) : 'N/A'}/hr
                           </option>
                         )}
-                        {(!data.enabledGroupSizes || data.enabledGroupSizes.length === 0 || data.enabledGroupSizes.includes('extraLarge')) && (
+                        {(!data?.enabledGroupSizes || data.enabledGroupSizes.length === 0 || data.enabledGroupSizes.includes('extraLarge')) && (
                           <option value="extraLarge">
-                            Extra Large Group (31+ people) - ${getPricePerHour(data, 'extraLarge', activityType)}/hr
+                            Extra Large Group (31+ people) - ${data ? getPricePerHour(data, 'extraLarge', activityType) : 'N/A'}/hr
                           </option>
                         )}
                       </select>
@@ -1670,7 +1676,7 @@ function EnhancedLocationDetails() {
                               groupSize === 'medium' ? '6 - 15 people' : 
                               groupSize === 'large' ? '16 - 30 people' :
                               '31+ people',
-                            projectName: `Booking at ${data.title}`,
+                            projectName: `Booking at ${data?.title || 'Location'}`,
                             renterCompany: 'Individual Booking',
                             projectDescription: `Group size: ${groupSize === 'small' ? 'Small (1-5 people)' : 
                               groupSize === 'medium' ? 'Medium (6-15 people)' : 
@@ -1930,7 +1936,7 @@ function EnhancedLocationDetails() {
                     serviceFee: serviceFee,
                     // Include these required fields for booking-summary to bypass booking-details
                     activityType: 'event',
-                    projectName: `Booking at ${data.title}`,
+                    projectName: `Booking at ${data?.title || 'Location'}`,
                     renterCompany: 'Individual Booking',
                     // Include new required fields
                     activity: '', // This will be filled in the HTML booking form

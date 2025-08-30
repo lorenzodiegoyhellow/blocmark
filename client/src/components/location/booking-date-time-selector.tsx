@@ -269,7 +269,7 @@ export function BookingDateTimeSelector({
                 ? `${formatTime(startTime)} - ${formatTime(endTime)} (${hours}${hours === Math.floor(hours) ? '' : '.5'}h)`
                 : selectedDate && startTime && endTime
                 ? `${formatTime(startTime)} - ${formatTime(endTime)}`
-                : "Pick a time"}
+                : "Select start and end time"}
             </span>
           </div>
         </button>
