@@ -32,6 +32,10 @@ export async function setupRoutes(app: Express) {
 
     // Setup auth routes (this sets up Passport.js strategies and routes)
     await setupAuth(app);
+
+    // Setup admin routes
+    const { default: adminRouter } = await import("./routes/admin");
+    app.use("/api/admin", adminRouter);
   } catch (error) {
     console.error("🔍 Failed to setup routes:", error);
   }
