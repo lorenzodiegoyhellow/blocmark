@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
+import { config } from '../config/env';
 
 interface StripeContextType {
   stripe: Stripe | null;
@@ -59,14 +60,18 @@ export function StripeProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Initializing Stripe...');
       
-      // Force use of correct key
-      const CORRECT_STRIPE_KEY = "pk_test_51RneKqRJ1MlOxo83nWbUi7KILvFj3QzETYOsI0BcycKNR8LetsaSIk178KFR5rhxm85murW9beNNUp5J87G0mg94001ZaPCFoB";
-      const envKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+      // Use the config file which has fallback values
+      const stripeKey = config.stripePublishableKey;
       
-      console.log('Environment key:', envKey ? envKey.substring(0, 20) + '...' : 'Missing');
-      console.log('Using correct key:', CORRECT_STRIPE_KEY.substring(0, 20) + '...');
+      if (!stripeKey) {
+        console.warn('No Stripe key available, skipping Stripe initialization');
+        setError(null);
+        return;
+      }
       
-      const stripePromise = await loadStripe(CORRECT_STRIPE_KEY);
+      console.log('Using Stripe key:', stripeKey.substring(0, 20) + '...');
+      
+      const stripePromise = await loadStripe(stripeKey);
       
       if (!stripePromise) {
         console.warn('Failed to load Stripe');

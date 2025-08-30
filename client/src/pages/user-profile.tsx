@@ -78,21 +78,29 @@ export default function UserProfile() {
   const { data: user, isLoading: userLoading, error: userError } = useQuery<User>({
     queryKey: [`/api/users/${id}`],
     enabled: !!id,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const { data: userListings, isLoading: listingsLoading, error: listingsError } = useQuery<any[]>({
     queryKey: [`/api/users/${id}/listings`],
     enabled: !!id,
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const { data: userStats, error: statsError } = useQuery<UserStats>({
     queryKey: [`/api/users/${id}/stats`],
     enabled: !!id,
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const { data: hostReviews, error: reviewsError } = useQuery<HostReview[]>({
     queryKey: [`/api/users/${id}/host-reviews`],
     enabled: !!id,
+    retry: 2,
+    retryDelay: 1000,
   });
 
   // Initialize form when user data loads
@@ -108,11 +116,21 @@ export default function UserProfile() {
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
       console.error('Global error caught:', event.error);
+      // Don't set error state for Stripe or other non-critical errors
+      if (event.error?.message?.includes('Stripe')) {
+        console.warn('Stripe error caught, ignoring:', event.error.message);
+        return;
+      }
       setError(`JavaScript error: ${event.error?.message || 'Unknown error'}`);
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error('Unhandled promise rejection:', event.reason);
+      // Don't set error state for Stripe or other non-critical errors
+      if (event.reason?.message?.includes('Stripe')) {
+        console.warn('Stripe promise rejection caught, ignoring:', event.reason.message);
+        return;
+      }
       setError(`Promise error: ${event.reason?.message || 'Unknown error'}`);
     };
 
