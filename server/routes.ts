@@ -4,6 +4,9 @@ import { setupAuth, hashPassword } from "./auth";
 import passport from "passport";
 import session from "express-session";
 import { sql } from "drizzle-orm";
+import multer from "multer";
+import { extname } from "path";
+import { v4 as uuidv4 } from "uuid";
 
 export async function setupRoutes(app: Express) {
   try {
@@ -742,5 +745,109 @@ export async function setupRoutes(app: Express) {
       console.error("Error fetching guest reviews:", error);
       res.status(500).json({ message: "Failed to fetch guest reviews" });
     }
+  });
+
+  // Update user profile endpoint
+  app.patch("/api/users/:id", ensureAuthenticated, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { bio, location, profileImage } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // Check if user is updating their own profile
+      if (req.user?.id !== userId) {
+        return res.status(403).json({ message: "You can only update your own profile" });
+      }
+
+      const { storage } = await import("./storage");
+      
+      // Update user profile
+      const updatedUser = await storage.updateUser(userId, {
+        bio,
+        location,
+        profileImage
+      });
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json(updatedUser);
+    } catch (error: any) {
+      console.error("Error updating user profile:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
+  // Configure multer for image uploads
+  const uploadStorage = multer.diskStorage({
+    destination: "./attached_assets",
+    filename: (req, file, cb) => {
+      const uniqueSuffix = uuidv4();
+      cb(null, uniqueSuffix + extname(file.originalname));
+    }
+  });
+
+  const upload = multer({
+    storage: uploadStorage,
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5MB limit
+    },
+    fileFilter: (req, file, cb) => {
+      // Accept common image formats
+      const allowedTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp'
+      ];
+      
+      if (!allowedTypes.includes(file.mimetype)) {
+        return cb(new Error('Only images are allowed'));
+      }
+      cb(null, true);
+    }
+  });
+
+  app.post("/api/upload", ensureAuthenticated, (req, res) => {
+    console.log('=== UPLOAD ENDPOINT CALLED ===');
+    console.log('User:', req.user?.id);
+    console.log('Content-Type:', req.headers['content-type']);
+    console.log('Content-Length:', req.headers['content-length']);
+    console.log('Method:', req.method);
+    console.log('================================');
+    
+    // Handle multer errors explicitly
+    upload.single('image')(req, res, async (err) => {
+      if (err) {
+        if (err instanceof multer.MulterError) {
+          if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({ error: "File too large. Maximum size is 5MB." });
+          }
+          return res.status(400).json({ error: "Upload error: " + err.message });
+        } else if (err.message === 'Only images are allowed') {
+          return res.status(400).json({ error: "Only image files are allowed." });
+        }
+        return res.status(500).json({ error: "Server error during upload: " + err.message });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file provided" });
+      }
+
+      // In production, you might want to use a CDN or cloud storage
+      // For now, we'll serve the file directly from the server
+      const url = `/attached_assets/${req.file.filename}`;
+      
+      // Return the URL immediately
+      res.json({ 
+        url,
+        message: "Image uploaded successfully."
+      });
+    });
   });
 }
