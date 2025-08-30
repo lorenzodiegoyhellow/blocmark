@@ -486,7 +486,8 @@ export async function setupRoutes(app: Express) {
         return res.status(401).json({ message: "Authentication required" });
       }
 
-      const locationData = {
+      // Clean and validate the incoming data
+      const cleanLocationData = {
         ...req.body,
         ownerId: req.user.id,
         createdAt: new Date().toISOString(),
@@ -494,9 +495,45 @@ export async function setupRoutes(app: Express) {
         status: 'active'
       };
 
-      console.log('Creating new location:', { ...locationData, images: locationData.images?.length || 0 });
+      // Handle availability field - ensure it's properly formatted
+      if (cleanLocationData.availability && typeof cleanLocationData.availability === 'string') {
+        try {
+          // If it's already a JSON string, parse it to validate
+          JSON.parse(cleanLocationData.availability);
+        } catch (e) {
+          // If parsing fails, convert it to a proper format
+          cleanLocationData.availability = JSON.stringify([]);
+        }
+      } else if (cleanLocationData.availability && Array.isArray(cleanLocationData.availability)) {
+        // If it's an array, convert to JSON string
+        cleanLocationData.availability = JSON.stringify(cleanLocationData.availability);
+      } else {
+        // Default to empty array
+        cleanLocationData.availability = JSON.stringify([]);
+      }
 
-      const createdLocation = await storage.createLocation(locationData);
+      // Ensure images is an array
+      if (!Array.isArray(cleanLocationData.images)) {
+        cleanLocationData.images = [];
+      }
+
+      // Ensure pricingMatrix is an object
+      if (!cleanLocationData.pricingMatrix || typeof cleanLocationData.pricingMatrix !== 'object') {
+        cleanLocationData.pricingMatrix = {};
+      }
+
+      // Ensure enabledGroupSizes is an array
+      if (!Array.isArray(cleanLocationData.enabledGroupSizes)) {
+        cleanLocationData.enabledGroupSizes = ['small'];
+      }
+
+      console.log('Creating new location:', { 
+        ...cleanLocationData, 
+        images: cleanLocationData.images?.length || 0,
+        availability: cleanLocationData.availability?.substring(0, 100) + '...' // Truncate for logging
+      });
+
+      const createdLocation = await storage.createLocation(cleanLocationData);
       
       if (!createdLocation) {
         throw new Error('Failed to create location');
