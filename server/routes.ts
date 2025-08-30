@@ -453,7 +453,17 @@ export async function setupRoutes(app: Express) {
       // Use the new storage function
       const { storage } = await import("./storage");
       const locations = await storage.getLocationsByOwnerId(userId);
-      res.json(locations || []);
+      
+      // Return in paginated format that the listings page expects
+      const paginatedData = {
+        data: locations || [],
+        total: (locations || []).length,
+        page: 1,
+        limit: (locations || []).length,
+        totalPages: 1
+      };
+      
+      res.json(paginatedData);
     } catch (error: any) {
       console.error("Error fetching owner locations by ID:", error);
       res.status(500).json({ 
